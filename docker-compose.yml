@@ -1,0 +1,17 @@
+# Local SQL Server for ProjectHub (development only).
+# Start: docker compose up -d     Stop: docker compose down     Wipe data: docker compose down -v
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    platform: linux/amd64 # runs under Rosetta on Apple Silicon Macs
+    container_name: projecthub-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-ProjectHub_Dev123!}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+volumes:
+  sqldata:
