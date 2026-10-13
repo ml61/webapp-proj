@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/playground/">
+    <File Path="playground/02-linq.cs" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/ProjectHub.Api/ProjectHub.Api.csproj" />
   </Folder>
