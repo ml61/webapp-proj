@@ -18,6 +18,10 @@
 - Follow the roadmap order and its "keep it simple" rule: layered monolith, no CQRS/MediatR/microservices/extra projects.
 - Lessons go in `docs/lessons/NN-topic.md` (Claude writes these), my own notes in `docs/notes/`.
 - After each topic: update `docs/progress.md` and add the topic's questions to `docs/interview-questions.md`.
+- **Every topic ends with a study book PDF** in `docs/studybooks/NN-topic.pdf` (generator script in `scripts/studybooks/`).
+  Thorough, not a cheat sheet: brief overview at the start, then everything covered in the topic (theory, our code explained,
+  experiments, debugging steps, the questions I asked and the answers, mistakes I made and corrections, interview Q&A with
+  model answers), and a summary at the end.
 - The final ticket (topic 20) is still done by me with docs only: that is the independence check.
 
 ## Where I am now

@@ -14,3 +14,7 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] `decimal` vs `double`: which one for money, and why
 - [ ] What does `with` do on a record?
 - [ ] What is a property, and how is it different from a field?
+- [ ] `DateTime.UtcNow` vs `DateTime.Now`: what is stored, and which one for `CreatedAt`?
+- [ ] Why is an EF Core entity a class and not a record? What is "identity" for an entity?
+- [ ] Why `TaskItem` and not `Task`?
+- [ ] Debugger: a breakpoint is hit on a line. Has that line run yet?
