@@ -17,8 +17,6 @@
 - Every lesson follows the roadmap loop: LEARN (theory) -> BUILD (Claude writes, I review and ask) -> DEBUG (break it once, I drive the debugger locally) -> CHECK (checkpoint + interview questions).
 - Follow the roadmap order and its "keep it simple" rule: layered monolith, no CQRS/MediatR/microservices/extra projects.
 - Lessons go in `docs/lessons/NN-topic.md` (Claude writes these), my own notes in `docs/notes/`.
-  The Claude app shows .md as raw text, so after writing/changing a lesson run `python3 scripts/lessons_to_html.py`
-  and send me `docs/lessons/html/NN-topic.html` (rendered). Never ask me to read a raw .md file.
 - After each topic: update `docs/progress.md` and add the topic's questions to `docs/interview-questions.md`.
 - **Every topic ends with a study book PDF** in `docs/studybooks/NN-topic.pdf` (generator script in `scripts/studybooks/`).
   Thorough, not a cheat sheet: brief overview at the start, then everything covered in the topic (theory, our code explained,

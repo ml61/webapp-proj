@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/playground/">
     <File Path="playground/02-linq.cs" />
+    <File Path="playground/03-services-exceptions.cs" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/ProjectHub.Api/ProjectHub.Api.csproj" />
