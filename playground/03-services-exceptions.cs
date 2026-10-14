@@ -1,6 +1,7 @@
 #:project ../src/ProjectHub.Api/ProjectHub.Api.csproj
 
 // Topic 3: Interfaces, generics, exceptions demo.
+// (Updated in Topic 4: the service is async now, so calls use await and the ...Async names.)
 // Run from the repo root:  dotnet run playground/03-services-exceptions.cs
 
 using ProjectHub.Api.Data;
@@ -14,28 +15,28 @@ Section("1. Program against the INTERFACE, not the class");
 // TS: const service: IProjectService = new ProjectService(data);
 IProjectService service = new ProjectService(SampleData.CreateProjects());
 
-Console.WriteLine($"GetAll: {service.GetAll().Count} projects");
-Console.WriteLine($"GetById(1):  {service.GetById(1)?.Name}");
-Console.WriteLine($"GetById(99): {service.GetById(99)?.Name ?? "null (not found is a normal answer)"}");
+Console.WriteLine($"GetAll: {(await service.GetAllAsync()).Count} projects");
+Console.WriteLine($"GetById(1):  {(await service.GetByIdAsync(1))?.Name}");
+Console.WriteLine($"GetById(99): {(await service.GetByIdAsync(99))?.Name ?? "null (not found is a normal answer)"}");
 
 // ---------------------------------------------------------------------------
 Section("2. Happy path: Create + AddTask");
-Project created = service.Create("  Docs portal  ", "Public API docs");
+Project created = await service.CreateAsync("  Docs portal  ", "Public API docs");
 Console.WriteLine($"Created #{created.Id} '{created.Name}' (name was trimmed)");
-TaskItem task = service.AddTask(created.Id, "Write getting started");
+TaskItem task = await service.AddTaskAsync(created.Id, "Write getting started");
 Console.WriteLine($"Added task #{task.Id} '{task.Title}' to project #{task.ProjectId}, status {task.Status}");
 
 // ---------------------------------------------------------------------------
 Section("3. The business rule: expected errors -> BusinessRuleException");
-TryCreate(service, "WEBSITE REDESIGN");   // duplicate, different case
-TryCreate(service, "   ");                // empty after trim
-TryCreate(service, new string('x', 101)); // too long
+await TryCreate(service, "WEBSITE REDESIGN");   // duplicate, different case
+await TryCreate(service, "   ");             // empty after trim
+await TryCreate(service, new string('x', 101)); // too long
 
 // ---------------------------------------------------------------------------
 Section("4. NotFoundException carries data, not only a message");
 try
 {
-    service.AddTask(projectId: 42, title: "Ghost task");
+    await service.AddTaskAsync(projectId: 42, title: "Ghost task");
 }
 catch (NotFoundException ex)
 {
@@ -49,8 +50,10 @@ foreach (var projectId in new[] { 1, 42 })
 {
     try
     {
-        Console.WriteLine($"AddTask({projectId}, \"\") ...");
-        service.AddTask(projectId, "");
+        // Project 1 exists -> the empty title fails. Project 42 does not -> a valid title, but NotFound.
+        var title = projectId == 1 ? "" : "Valid title";
+        Console.WriteLine($"AddTask({projectId}, \"{title}\") ...");
+        await service.AddTaskAsync(projectId, title);
     }
     catch (NotFoundException ex) when (ex.Key is int id && id > 10)
     {
@@ -94,12 +97,12 @@ Section("7. Polymorphism: a different implementation behind the same interface")
 // LoggingProjectService wraps ANY IProjectService and adds logging (the Decorator pattern).
 // The calling code below does not change at all: it only knows IProjectService.
 IProjectService logged = new LoggingProjectService(new ProjectService(SampleData.CreateProjects()));
-PrintProjectCount(logged);
-TryCreate(logged, "Mobile app");
+await PrintProjectCount(logged);
+await TryCreate(logged, "Mobile app");
 
 // ---------------------------------------------------------------------------
 Section("8. Encapsulation: GetAll() returns a READ-ONLY list");
-IReadOnlyList<Project> all = service.GetAll();
+IReadOnlyList<Project> all = await service.GetAllAsync();
 // all.Add(...)  -> compile error: IReadOnlyList has no Add.
 // Even casting back to a writable interface fails at runtime:
 try
@@ -112,21 +115,21 @@ catch (NotSupportedException ex)
 }
 // But the PROJECTS inside are still mutable entities: a caller can change them.
 all[0].Name = "Renamed by a caller!";
-Console.WriteLine($"service.GetById(1).Name = {service.GetById(1)!.Name}   <- leak (DTOs fix this in Topic 6)");
+Console.WriteLine($"service.GetById(1).Name = {(await service.GetByIdAsync(1))!.Name}   <- leak (DTOs fix this in Topic 6)");
 
 // ---------------------------------------------------------------------------
 Section("9. Generics: our own generic method with a constraint");
 // TS: function largest<T extends Comparable<T>>(items: T[]): T
 Console.WriteLine($"Largest(int):      {Largest(new[] { 3, 9, 4 })}");
 Console.WriteLine($"Largest(string):   {Largest(new[] { "pear", "apple", "zebra" })}");
-Console.WriteLine($"Largest(DateTime): {Largest(service.GetAll().Select(p => p.CreatedAt)):yyyy-MM-dd}");
-// Largest(service.GetAll());  -> compile error: Project does not implement IComparable<Project>
+Console.WriteLine($"Largest(DateTime): {Largest((await service.GetAllAsync()).Select(p => p.CreatedAt)):yyyy-MM-dd}");
+// Largest(await service.GetAllAsync());  -> compile error: Project does not implement IComparable<Project>
 
 // ---------------------------------------------------------------------------
 Section("10. Generics: our own generic type");
 // One definition, many types. TS: type Page<T> = { items: T[]; pageNumber: number; totalCount: number }
-Page<string> namesPage = ToPage(service.GetAll().Select(p => p.Name), pageNumber: 1, pageSize: 2);
-Page<TaskItem> tasksPage = ToPage(service.GetAll().SelectMany(p => p.Tasks), pageNumber: 2, pageSize: 3);
+Page<string> namesPage = ToPage((await service.GetAllAsync()).Select(p => p.Name), pageNumber: 1, pageSize: 2);
+Page<TaskItem> tasksPage = ToPage((await service.GetAllAsync()).SelectMany(p => p.Tasks), pageNumber: 2, pageSize: 3);
 Console.WriteLine($"Page<string>:   page {namesPage.PageNumber}, {namesPage.Items.Count} of {namesPage.TotalCount}: {string.Join(", ", namesPage.Items)}");
 Console.WriteLine($"Page<TaskItem>: page {tasksPage.PageNumber}, {tasksPage.Items.Count} of {tasksPage.TotalCount}: {string.Join(", ", tasksPage.Items.Select(t => $"#{t.Id}"))}");
 
@@ -135,12 +138,12 @@ Console.WriteLine($"Page<TaskItem>: page {tasksPage.PageNumber}, {tasksPage.Item
 
 static void Section(string title) => Console.WriteLine($"\n=== {title} ===");
 
-static void TryCreate(IProjectService service, string name)
+static async Task TryCreate(IProjectService service, string name)
 {
     var label = name.Length > 20 ? name[..20] + "..." : $"'{name}'";
     try
     {
-        var project = service.Create(name, null);
+        var project = await service.CreateAsync(name, null);
         Console.WriteLine($"Create({label}): OK #{project.Id}");
     }
     catch (BusinessRuleException ex)
@@ -150,8 +153,8 @@ static void TryCreate(IProjectService service, string name)
     }
 }
 
-static void PrintProjectCount(IProjectService service) =>
-    Console.WriteLine($"PrintProjectCount: {service.GetAll().Count} projects");
+static async Task PrintProjectCount(IProjectService service) =>
+    Console.WriteLine($"PrintProjectCount: {(await service.GetAllAsync()).Count} projects");
 
 static void Rethrow(bool useThrowEx)
 {
@@ -206,24 +209,24 @@ record Page<T>(IReadOnlyList<T> Items, int PageNumber, int TotalCount);
 // A second implementation of the same interface: wraps another one and logs every call.
 class LoggingProjectService(IProjectService inner) : IProjectService
 {
-    public IReadOnlyList<Project> GetAll()
+    public Task<IReadOnlyList<Project>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         Console.WriteLine("  [log] GetAll()");
-        return inner.GetAll();
+        return inner.GetAllAsync(cancellationToken);
     }
 
-    public Project? GetById(int id)
+    public Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"  [log] GetById({id})");
-        return inner.GetById(id);
+        return inner.GetByIdAsync(id, cancellationToken);
     }
 
-    public Project Create(string name, string? description)
+    public async Task<Project> CreateAsync(string name, string? description, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"  [log] Create('{name}')");
         try
         {
-            return inner.Create(name, description);
+            return await inner.CreateAsync(name, description, cancellationToken);
         }
         catch (BusinessRuleException ex)
         {
@@ -232,9 +235,9 @@ class LoggingProjectService(IProjectService inner) : IProjectService
         }
     }
 
-    public TaskItem AddTask(int projectId, string title)
+    public Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"  [log] AddTask({projectId}, '{title}')");
-        return inner.AddTask(projectId, title);
+        return inner.AddTaskAsync(projectId, title, cancellationToken);
     }
 }
