@@ -76,21 +76,28 @@ def numbered(items, st=body):
                         leftIndent=16, bulletFontName="Sans-Bold", bulletFontSize=9)
 
 
-def CODE(src, caption=None):
+CODE_MAX_LINES = 55  # one code box must fit on a page
+
+
+def CODE(src, caption=None, width_mm=170):
     src = src.strip("\n")
-    longest = max((len(l) for l in src.splitlines()), default=0)
+    lines = src.splitlines()
+    longest = max((len(l) for l in lines), default=0)
     st = code
-    if longest > 92:  # shrink the font so long lines still fit the box (never below 6pt)
-        size = max(6.0, code.fontSize * 92 / longest)
+    fits = int(92 * width_mm / 170)  # characters that fit at the default font size
+    if longest > fits:  # shrink the font so long lines still fit the box (never below 6pt)
+        size = max(6.0, code.fontSize * fits / longest)
         st = ParagraphStyle("code_small", parent=code, fontSize=size, leading=size * 1.37)
-    pre = Preformatted(src, st)
-    t = Table([[pre]], colWidths=[170 * mm])
-    t.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), CODEBG), ("BOX", (0, 0), (-1, -1), 0.6, CODEBORDER),
-                           ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7),
-                           ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
-    out = [t, Spacer(1, 6)]
-    if caption:
-        out.insert(0, P(caption, small))
+    out = [P(caption, small)] if caption else []
+    chunks = [lines[i:i + CODE_MAX_LINES] for i in range(0, max(len(lines), 1), CODE_MAX_LINES)]
+    for n, chunk in enumerate(chunks):
+        if n > 0:
+            out.append(P("(continued)", small))
+        t = Table([[Preformatted("\n".join(chunk), st)]], colWidths=[width_mm * mm])
+        t.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), CODEBG), ("BOX", (0, 0), (-1, -1), 0.6, CODEBORDER),
+                               ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+                               ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
+        out += [t, Spacer(1, 6)]
     return out
 
 

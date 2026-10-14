@@ -34,3 +34,21 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] What does `var` do? When is it required? Is it dynamic typing?
 - [ ] Which LINQ calls throw where JS would return undefined? (First, Single, Max on empty, dict[missing], ToDictionary duplicates)
 - [ ] Debugger: what does the call stack (Frames) show, and how do you use it?
+
+## Topic 3: Interfaces, generics, exceptions
+- [ ] Interface vs class: what is the difference? Two concrete benefits of programming against an interface
+- [ ] How does a C# class "match" an interface, compared to TypeScript?
+- [ ] Interface vs abstract class: when do you use each?
+- [ ] What is polymorphism? Give an example (decorator)
+- [ ] What does a generic constraint like `where T : IComparable<T>` do? What happens with a type that doesn't satisfy it?
+- [ ] How are C# generics different from TS generics (reified vs erased)?
+- [ ] `throw;` vs `throw ex;`
+- [ ] Expected vs unexpected errors: examples, which do you catch, and where?
+- [ ] When do you return null and when do you throw? (query vs command)
+- [ ] Why custom exception types?
+- [ ] Why should a service receive its dependencies through the constructor?
+- [ ] What is a constructor, and how do you recognize it? Classic vs primary constructor
+- [ ] `StringComparison.OrdinalIgnoreCase` vs `ToLower()`
+- [ ] Compile error vs runtime exception; what happens to an unhandled exception?
+- [ ] `var` vs an explicit interface type: when does it change the meaning?
+- [ ] Debugger: what is an exception breakpoint?
