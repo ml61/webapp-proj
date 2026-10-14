@@ -170,7 +170,7 @@ public class BusinessRuleException(string message) : Exception(message);
 | Line | Why |
 |---|---|
 | `public class ProjectService : IProjectService` | implements the contract; the compiler checks every member exists |
-| constructor takes `IEnumerable<Project> initialProjects` | the service doesn't decide where data comes from. The caller passes it in: `SampleData` today, test data in Topic 13. This is **dependency injection in its simplest form** (Topic 7 automates it) |
+| **the constructor** `public ProjectService(IEnumerable<Project> initialProjects) { ... }` (same name as the class, no return type; runs once on `new ProjectService(data)`; TS: `constructor(initialProjects: Iterable<Project>) { ... }`) takes the data as a parameter | the service doesn't decide where data comes from. The caller passes it in: `SampleData` today, test data in Topic 13. This is **dependency injection in its simplest form** (Topic 7 automates it) |
 | `_projects = initialProjects.ToList()` | its **own copy** (Topic 2: enumerate once; caller's later changes don't affect it) |
 | `private readonly List<Project> _projects` | `readonly`: the *field* can't be reassigned after the constructor (the list's *contents* can still change). `_camelCase` = private field naming |
 | `.Select(p => p.Id).DefaultIfEmpty(0).Max() + 1` | next id. `DefaultIfEmpty(0)` avoids the **Max-on-empty exception** from Topic 2 when there are no projects |
