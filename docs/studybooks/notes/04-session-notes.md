@@ -27,3 +27,11 @@
   the lock; different objects = different lists + different locks. Topic 7: registered as a singleton -> one object,
   one list, one lock for all requests. Coarse-grained lock = simplest correct choice; finer options exist
   (ConcurrentDictionary, reader/writer lock).
+- **Question:** "5 concurrent creates with the SAME name: rejected, rejected, rejected, rejected, created" — user read it
+  as "all 5 rejected" and expected the FIRST one to be created (also changed the title "just in case").
+  Answer: the line has 1 created (the last). 4 runs in the container: always exactly 1 created, position varies
+  (last, last, first, last). (1) Task.WhenAll returns results in INPUT order (like Promise.all), not completion order.
+  (2) Started first != enters the lock first: the 5 waits end almost together, the thread scheduler decides who takes
+  the lock. Lock guarantees exactly ONE winner, not WHICH one; correctness must not depend on the winner (if order
+  matters: explicit ordering such as a DB sequence or a queue). If the title was changed to an existing name
+  (e.g. "Mobile app"), all 5 rejected is correct.
