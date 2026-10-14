@@ -26,3 +26,12 @@
   without parsing messages, structured data (EntityName, Key).
   Constructor data: did not know -> constructor injection: no hidden hard-coded dependency, tests choose the data,
   source swappable; TS analogy: importing a singleton inside (needs jest.mock) vs receiving it in the constructor.
+- **DEBUG (Rider, .NET exception breakpoint on BusinessRuleException):** stopped on the `throw` line in
+  ProjectService.Create although the snippet catches it (exception breakpoints stop when THROWN). trimmedName =
+  "Mobile app". User sent a screenshot of the Variables panel (not Frames): $exception pseudo-variable; `this` =
+  ProjectService instance (expand -> private fields); parameters name/description (icon with parentheses); locals
+  trimmedName and project = null (line not executed yet, like count = 0 in topic 1).
+  After removing try/catch the user said "compile failed" -> WRONG TERM: build succeeded; the exception was UNHANDLED
+  at runtime -> process crashed ("Unhandled exception. ...BusinessRuleException..."), API never started (snippet was
+  before app.Run()). Compile time vs runtime. In an HTTP request ASP.NET catches unhandled exceptions per request -> 500,
+  server keeps running (topic 12 maps to 4xx).
