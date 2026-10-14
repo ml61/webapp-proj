@@ -54,3 +54,6 @@
   that took it; after await the method may continue on another thread that would release a lock it doesn't own ->
   compile error. Also add for 5: thread-pool starvation; deadlock in UI / old ASP.NET; for 10: EF Core can't run
   parallel queries on one DbContext.
+- **Re-check:** A (checkpoint) right; order nuance: starvation (all threads stuck) comes FIRST, queueing/timeouts follow
+  (user said queued then starvation). B right (it is a compile error). C half: described the mechanism (threads not
+  idle); missing: improves throughput/scalability, not single-request speed; no help for CPU-bound work.

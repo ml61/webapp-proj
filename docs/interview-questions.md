@@ -52,3 +52,19 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] Compile error vs runtime exception; what happens to an unhandled exception?
 - [ ] `var` vs an explicit interface type: when does it change the meaning?
 - [ ] Debugger: what is an exception breakpoint?
+
+## Topic 4: Async/await
+- [ ] `Task<T>` vs `Promise<T>`: what is the same, what is different (thread pool vs one thread)?
+- [ ] Why should backend I/O be awaited? (thread, pool, starvation)
+- [ ] Does async make a request faster? What does it improve? Where does it not help?
+- [ ] What is thread-pool starvation?
+- [ ] What is a `CancellationToken`? Who creates it, who passes it, where does ASP.NET get one?
+- [ ] Why is `.Result` / `.Wait()` bad?
+- [ ] What is wrong with `async void`? With calling an async method without `await`?
+- [ ] Where does an exception thrown in an async method surface?
+- [ ] `Task.WhenAll` vs sequential awaits; result order; why not with one EF `DbContext`?
+- [ ] What is a race condition? What is check-then-act, and how do you fix it?
+- [ ] Why can't you `await` inside a `lock`?
+- [ ] Is `List<T>` thread-safe? What can happen without a lock?
+- [ ] What does a lock guarantee about which thread wins?
+- [ ] Why make `IProjectService` async when the data is in memory?

@@ -1,6 +1,6 @@
 # Progress
 
-**Current topic:** 4 — Async/await
+**Current topic:** 5 — Debugging fundamentals (local)
 **Track:** 4 weeks, 2–3 h/day. Daily loop: LEARN (30–40%) → BUILD (40–50%) → DEBUG (10–20%) → CHECK.
 
 Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
@@ -11,7 +11,7 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
 | 1 | Setup + C# bridge: types, nullability, classes, records | Create `Project` and `TaskItem`. Set a breakpoint, inspect values | Run the solution; explain class vs record and nullable warnings | [x] |
 | 2 | Collections + LINQ: `List<T>`, `Dictionary`, `IEnumerable`, lambdas | Filter, sort, group, project sample ProjectHub data | Translate map/filter/find into LINQ | [x] |
 | 3 | Interfaces, generics, exceptions | `IProjectService` + `ProjectService`, one business validation rule | Explain interface vs class; handle an expected error | [x] |
-| 4 | Async/await: `Task`, `Task<T>`, I/O, `CancellationToken` | Make service calls async, pass a CancellationToken through one path | Explain why backend I/O should be awaited | [~] |
+| 4 | Async/await: `Task`, `Task<T>`, I/O, `CancellationToken` | Make service calls async, pass a CancellationToken through one path | Explain why backend I/O should be awaited | [x] |
 | 5 | Debugging fundamentals (local) | Debug Lab A | Find a bug without `Console.WriteLine` | [ ] |
 
 ## Week 2 — ASP.NET Core + SQL + EF Core
