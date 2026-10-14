@@ -35,3 +35,22 @@
   the lock. Lock guarantees exactly ONE winner, not WHICH one; correctness must not depend on the winner (if order
   matters: explicit ordering such as a DB sequence or a queue). If the title was changed to an existing name
   (e.g. "Mobile app"), all 5 rejected is correct.
+- **DEBUG (user's results):** step 4: breakpoint B hits 1, 3, 2, 1 -> first `1` = the plain await that was stepped over
+  (B IS hit during Step Over of an await: debugger stops inside the called method); then WhenAll 3, 2, 1 = reverse of
+  start order (same lesson as demo 7: started first != continues first). Step 5: without await the debugger showed the
+  BusinessRuleException being thrown but the code continued "happily" (error silently lost inside the faulted task,
+  CS4014); with await the exception surfaced at the await and stopped the program before the console line.
+- **CHECK round 1:** right: 5 (.Result blocks), 7 (lock + same lock), 9 (async interface for the future), 10 (WhenAll
+  for independent calls; sequential when dependent).
+  Half: 1 — said "after await the task needs a lock"; correction: await itself needs no lock; the difference is that the
+  continuation runs on ANY pool thread, possibly in parallel, so SHARED data needs a lock (JS: one thread, event loop /
+  microtasks). 2 (checkpoint) — core right but not crisp; model answer: thread returns to the pool while awaiting I/O;
+  blocking holds idle threads -> thread-pool starvation -> queueing/timeouts; few threads serve many requests.
+  3 — "no" right, missing: improves throughput/scalability, not single-request latency; no help for CPU-bound work.
+  4 — missing that ASP.NET creates the token (HttpContext.RequestAborted, cancelled when the client disconnects; a
+  controller just takes a CancellationToken parameter). 6 — missing: exception in async void crashes the process;
+  fire-and-forget loses errors (shown in debug step 5), CS4014.
+  Wrong: 8 — said "lock is for superfast operations" (that's the guideline); real reason: a lock belongs to the thread
+  that took it; after await the method may continue on another thread that would release a lock it doesn't own ->
+  compile error. Also add for 5: thread-pool starvation; deadlock in UI / old ASP.NET; for 10: EF Core can't run
+  parallel queries on one DbContext.
