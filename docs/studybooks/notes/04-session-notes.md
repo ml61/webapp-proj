@@ -17,3 +17,13 @@
   Experiment (docs/studybooks/notes/04-race-experiment.cs, Thread.Sleep(10) widens the gap):
     Without lock: created x5 -> 5 projects named 'Race project'
     With lock:    created, rejected x4 -> 1 project
+- **User's own conclusion (correct):** "we get info from db in await, then in lock we just do fast C# things, so threads
+  don't wait long; it's like a single LOCK for all threads."
+  Confirmed + precisions: (1) slow I/O outside the lock, microsecond work inside -> waiting is microseconds; rule: keep
+  critical sections short, never do I/O inside a lock (await inside lock is a compile error); with 300 ms inside the lock
+  5 creates would take ~1.5 s serially. In our fake the await only simulates DB time; data is read from the list inside
+  the lock; with a real DB (topic 10) data comes via await and the DB handles concurrency, the lock disappears.
+  (2) one lock PER ProjectService INSTANCE (_gate is an instance field): threads sharing the same service object share
+  the lock; different objects = different lists + different locks. Topic 7: registered as a singleton -> one object,
+  one list, one lock for all requests. Coarse-grained lock = simplest correct choice; finer options exist
+  (ConcurrentDictionary, reader/writer lock).
