@@ -47,7 +47,7 @@ In the interview, "how do you debug?" isn't answered by "I add logs". Logs are f
 | **Conditional breakpoint** | pauses only when a condition is true (`task.Id == 158`) | a loop of 300 items where 1 is bad | right-click the red dot → Condition |
 | **Hit count** | pauses only on the Nth time | "fails on the 3rd call" | right-click the red dot → More… |
 | **Logpoint / tracepoint** | prints a message **without pausing** and without changing code | you want a log line but don't want to edit code | right-click the red dot → More… → uncheck *Suspend*, enable *Log evaluated expression* |
-| **Exception breakpoint** | pauses where an exception is **thrown**, even if caught (Topic 3) | "it fails somewhere" | Run → View Breakpoints → + → .NET Exception Breakpoint |
+| **Exception breakpoint** | pauses where an exception is **thrown**, even if caught (Topic 3) | "it fails somewhere" | Run → Stop on Exception… |
 | **Frames (call stack)** | the chain of calls; click a frame to see **that** method's variables (Topic 2) | "who called this with these values?" | Threads & Variables tab |
 | **Parallel Stacks** | all threads and where they are (Topic 4) | async / concurrency bugs | Parallel Stacks tab |
 
@@ -86,7 +86,7 @@ Menu names can differ slightly between Rider versions. If something isn't exactl
 - **Symptom:** `IndexOutOfRangeException`. 300+ tasks, and the error message doesn't say which one.
 - **Tools to use:** **exception breakpoint**, **Frames**, **conditional breakpoint**, Step Into.
 - **Do:**
-  1. Add a **.NET Exception Breakpoint** for `System.IndexOutOfRangeException` (as in Topic 3). Debug.
+  1. Add an exception breakpoint for `System.IndexOutOfRangeException`: **Run → Stop on Exception…** (as in Topic 3). Debug.
   2. Where does it stop? Look at `title`, `words`, `i` in Variables. What's unusual?
   3. In **Frames**, click the caller frame (`GetTaskCodesAsync`). Which `task` was being processed? Note its `Id`.
   4. Remove the exception breakpoint. Put a normal breakpoint on the `codes.Add(...)` line and make it **conditional**: `task.Id == <the id you found>`. Debug again. It should stop **only** for that one task out of 300+.

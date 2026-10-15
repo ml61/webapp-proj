@@ -2,7 +2,7 @@
 
 Usage (from repo root):
   python3 scripts/studybooks/03-interfaces-generics-exceptions.py docs/studybooks/03-interfaces-generics-exceptions.pdf [demo-output.txt]
-Source files are read from src/ so the printed code always matches the repo.
+Source files are read from git at the commit that finished Topic 3 (TOPIC_REV).
 """
 import os
 import sys
@@ -16,9 +16,13 @@ DEMO_OUT = sys.argv[2] if len(sys.argv) > 2 else None
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
+# Source code is printed as it was when Topic 3 finished (later topics changed it, e.g. Topic 4 made it async).
+TOPIC_REV = "0cedc21"
+
+
 def src(rel):
-    with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
-        return f.read()
+    import subprocess
+    return subprocess.run(["git", "show", f"{TOPIC_REV}:{rel}"], cwd=ROOT, capture_output=True, text=True, check=True).stdout
 
 
 def wrap_output(text, width=92):
@@ -289,7 +293,7 @@ S += H2("7.1 Steps")
 S += numbered([
     "Paste the snippet below into `Program.cs` right before `app.Run();`.",
     "Debug once with no breakpoints: it does not stop (the exception is caught; only the console line appears).",
-    "Add an exception breakpoint: **Run > View Breakpoints... > + > .NET Exception Breakpoint**, type `BusinessRuleException`, OK.",
+    "Add an exception breakpoint: **Run > Stop on Exception...**, add `BusinessRuleException`, OK. (Other Rider versions: Run > View Breakpoints > + > .NET Exception Breakpoint.)",
     "Debug again: Rider stops **inside `ProjectService.Create`, on the `throw` line**, although the exception will be caught.",
     "Inspect the Variables panel (and Frames).",
     "Break it: remove the `try/catch` and debug again.",

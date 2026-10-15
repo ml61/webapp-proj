@@ -221,7 +221,7 @@ A caught exception is invisible: the program just continues. Rider can **stop at
    }
    ```
 2. **Debug it once with no breakpoints.** It doesn't stop. The exception is caught, and you only see the console line.
-3. **Add an exception breakpoint:** menu **Run → View Breakpoints…** → **+** → **.NET Exception Breakpoint** → type `BusinessRuleException` → OK. (If the dialog wording differs in your Rider version, look for "Exception Breakpoint" in that dialog.)
+3. **Add an exception breakpoint:** menu **Run → Stop on Exception…** → add `BusinessRuleException` → OK. (This is the path in your Rider version. Other versions call it "View Breakpoints → + → .NET Exception Breakpoint"; if neither matches, use Help → Find Action and type "exception".)
 4. **Debug again.** Rider now stops **inside `ProjectService.Create`, on the `throw` line**, even though the exception will be caught.
 5. Inspect:
    - **Variables:** `trimmedName`, and expand `_projects` (and `this`).

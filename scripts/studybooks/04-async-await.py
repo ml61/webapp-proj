@@ -2,7 +2,7 @@
 
 Usage (from repo root):
   python3 scripts/studybooks/04-async-await.py docs/studybooks/04-async-await.pdf [demo-output.txt] [race-output.txt]
-Source files are read from src/ and docs/studybooks/notes/ so the printed code always matches the repo.
+Source files are read from git at the commit that finished Topic 4 (TOPIC_REV).
 """
 import os
 import sys
@@ -17,9 +17,13 @@ RACE_OUT = sys.argv[3] if len(sys.argv) > 3 else None
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
+# Source code is printed as it was when Topic 4 finished (later topics may change it).
+TOPIC_REV = "92e7881"
+
+
 def src(rel):
-    with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
-        return f.read()
+    import subprocess
+    return subprocess.run(["git", "show", f"{TOPIC_REV}:{rel}"], cwd=ROOT, capture_output=True, text=True, check=True).stdout
 
 
 def wrapped(text, width=92):
