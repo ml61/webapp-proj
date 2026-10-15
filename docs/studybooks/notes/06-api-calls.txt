@@ -1,0 +1,111 @@
+
+### GET all
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+[{"id":1,"name":"Website redesign","description":"New marketing site","createdAt":"2026-09-01T09:00:00Z","taskCount":4,"doneCount":2},{"id":2,"name":"Mobile app","description":null,"createdAt":"2026-09-05T09:00:00Z","taskCount":3,"doneCount":0},{"id":3,"name":"Internal tools","description":"Admin dashboards","createdAt":"2026-09-09T09:00:00Z","taskCount":0,"doneCount":0}]
+
+
+### GET one
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"id":1,"name":"Website redesign","description":"New marketing site","createdAt":"2026-09-01T09:00:00Z","tasks":[{"id":1,"projectId":1,"title":"Design mockups","status":"Done","createdAt":"2026-09-02T09:00:00Z"},{"id":2,"projectId":1,"title":"Build landing page","status":"InProgress","createdAt":"2026-09-04T09:00:00Z"},{"id":3,"projectId":1,"title":"SEO audit","status":"Todo","createdAt":"2026-09-06T09:00:00Z"},{"id":4,"projectId":1,"title":"Write copy","status":"Done","createdAt":"2026-09-03T09:00:00Z"}]}
+
+
+### GET missing
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-c61b20a82e94b2290cb1223b7fd06620-be89e6bffbe23520-00"}
+
+
+### POST create
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Location: http://localhost:5064/api/projects/4
+
+{"id":4,"name":"Docs portal","description":"Public API docs","createdAt":"2026-10-15T07:36:22.9192103Z","tasks":[]}
+
+
+### POST duplicate (different case)
+HTTP/1.1 409 Conflict
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.10","title":"Conflict","status":409,"detail":"A project named 'WEBSITE REDESIGN' already exists.","traceId":"00-cc8f10fe2a74c7a1e87b209f391dba57-e36ba4828b1e83c4-00"}
+
+
+### POST empty name
+HTTP/1.1 400 Bad Request
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"Bad Request","status":400,"detail":"Project name is required.","traceId":"00-c05bceb0a9b0a997e11ca106873cc0aa-2d182fe90b4592d9-00"}
+
+
+### POST missing name
+HTTP/1.1 400 Bad Request
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"Name":["The Name field is required."]},"traceId":"00-10c4a07f3d77b752300bde081bc366f5-33e0ae61443c4683-00"}
+
+
+### POST broken JSON
+HTTP/1.1 400 Bad Request
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"request":["The request field is required."],"$.name":["Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. Path: $.name | LineNumber: 0 | BytePositionInLine: 9."]},"traceId":"00-68a15c98c463b28ebfd7d5809a539540-d7c5ba0603b1230b-00"}
+
+
+### PUT update
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"id":4,"name":"Docs portal v2","description":"Renamed","createdAt":"2026-10-15T07:36:22.9192103Z","tasks":[]}
+
+
+### PUT to another project's name
+HTTP/1.1 409 Conflict
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.10","title":"Conflict","status":409,"detail":"A project named 'Mobile app' already exists.","traceId":"00-0e84c0ad50a906810c556eb0b2159286-e4ce5f9cf2952115-00"}
+
+
+### PUT missing
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"Project with id '999' was not found.","traceId":"00-425a815c312a2e345f090192a344a034-99f0658df8359e70-00"}
+
+
+### POST task
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Location: http://localhost:5064/api/projects/4
+
+{"id":8,"projectId":4,"title":"Write getting started","status":"Todo","createdAt":"2026-10-15T07:36:23.0525598Z"}
+
+
+### POST task to missing project
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"Project with id '999' was not found.","traceId":"00-b19b453293229ce7677ee6efd0ebdc2d-582a0df4ac2c4425-00"}
+
+
+### DELETE
+HTTP/1.1 204 No Content
+
+
+
+### DELETE again
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"Project with id '4' was not found.","traceId":"00-71b154043aa7219196318ac149993c33-740857187995eb7b-00"}
+
+
+### GET with non-int id
+HTTP/1.1 404 Not Found
+Content-Length: 0
+
+

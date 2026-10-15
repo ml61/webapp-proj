@@ -11,8 +11,14 @@ public interface IProjectService
     // Returns null when the project does not exist: "not found" is a normal answer here.
     Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    // Throws BusinessRuleException when the name is empty, too long, or already used.
+    // Throws BusinessRuleException when the name is empty or too long, ConflictException when it is already used.
     Task<Project> CreateAsync(string name, string? description, CancellationToken cancellationToken = default);
+
+    // Throws NotFoundException, BusinessRuleException or ConflictException (name used by ANOTHER project).
+    Task<Project> UpdateAsync(int id, string name, string? description, CancellationToken cancellationToken = default);
+
+    // Throws NotFoundException when the project does not exist.
+    Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 
     // Throws NotFoundException when the project does not exist.
     Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default);

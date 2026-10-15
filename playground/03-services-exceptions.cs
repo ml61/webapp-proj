@@ -235,6 +235,19 @@ class LoggingProjectService(IProjectService inner) : IProjectService
         }
     }
 
+    // (Added in Topic 6 when IProjectService got UpdateAsync and DeleteAsync.)
+    public Task<Project> UpdateAsync(int id, string name, string? description, CancellationToken cancellationToken = default)
+    {
+        Console.WriteLine($"  [log] Update({id}, '{name}')");
+        return inner.UpdateAsync(id, name, description, cancellationToken);
+    }
+
+    public Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        Console.WriteLine($"  [log] Delete({id})");
+        return inner.DeleteAsync(id, cancellationToken);
+    }
+
     public Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"  [log] AddTask({projectId}, '{title}')");

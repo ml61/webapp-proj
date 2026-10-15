@@ -1,6 +1,96 @@
-@ProjectHub.Api_HostAddress = http://localhost:5064
+# ProjectHub API requests. In Rider: start the API (Run or Debug, "http" profile), then click the green
+# arrow next to any request. Each "###" starts a new request. Expected status codes are in the titles.
 
-GET {{ProjectHub.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+@host = http://localhost:5064
 
-###
+### 200: list of project summaries
+GET {{host}}/api/projects
+
+### 200: one project with its tasks (status as text: "Todo", "InProgress", "Done")
+GET {{host}}/api/projects/1
+
+### 404: no such project
+GET {{host}}/api/projects/999
+
+### 404 with an empty body: "abc" doesn't match the {id:int} route constraint, so no action is found
+GET {{host}}/api/projects/abc
+
+### 201 Created + Location header: create a project
+POST {{host}}/api/projects
+Content-Type: application/json
+
+{
+  "name": "Docs portal",
+  "description": "Public API docs"
+}
+
+### 409 Conflict: the name is taken (case-insensitive)
+POST {{host}}/api/projects
+Content-Type: application/json
+
+{
+  "name": "WEBSITE REDESIGN"
+}
+
+### 400: our business rule (empty after trimming)
+POST {{host}}/api/projects
+Content-Type: application/json
+
+{
+  "name": "   "
+}
+
+### 400: automatic model validation by [ApiController] ("name" is a non-nullable string, so it is required)
+POST {{host}}/api/projects
+Content-Type: application/json
+
+{
+  "description": "no name"
+}
+
+### 200: update project 4 (create it first with the POST above)
+PUT {{host}}/api/projects/4
+Content-Type: application/json
+
+{
+  "name": "Docs portal v2",
+  "description": "Renamed"
+}
+
+### 409: project 4 may not take ANOTHER project's name
+PUT {{host}}/api/projects/4
+Content-Type: application/json
+
+{
+  "name": "Mobile app"
+}
+
+### 404: update a project that doesn't exist
+PUT {{host}}/api/projects/999
+Content-Type: application/json
+
+{
+  "name": "Ghost"
+}
+
+### 201 Created: add a task to project 4
+POST {{host}}/api/projects/4/tasks
+Content-Type: application/json
+
+{
+  "title": "Write getting started"
+}
+
+### 404: add a task to a project that doesn't exist
+POST {{host}}/api/projects/999/tasks
+Content-Type: application/json
+
+{
+  "title": "Ghost task"
+}
+
+### 204 No Content: delete project 4
+DELETE {{host}}/api/projects/4
+
+### 404: delete it again
+DELETE {{host}}/api/projects/4

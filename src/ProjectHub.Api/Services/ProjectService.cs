@@ -52,17 +52,7 @@ public class ProjectService : IProjectService
     public async Task<Project> CreateAsync(string name, string? description, CancellationToken cancellationToken = default)
     {
         // Validate the input first: no point "calling the database" with a bad request.
-        var trimmedName = name.Trim();
-
-        if (trimmedName.Length == 0)
-        {
-            throw new BusinessRuleException("Project name is required.");
-        }
-
-        if (trimmedName.Length > MaxNameLength)
-        {
-            throw new BusinessRuleException($"Project name must be at most {MaxNameLength} characters.");
-        }
+        var trimmedName = ValidateName(name);
 
         await SimulateDatabaseCallAsync(cancellationToken);
 
@@ -70,10 +60,7 @@ public class ProjectService : IProjectService
         {
             // Check AND add inside the same lock: otherwise two concurrent calls with the same name
             // could both pass the check before either one adds (a "check-then-act" race).
-            if (_projects.Any(p => string.Equals(p.Name, trimmedName, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new BusinessRuleException($"A project named '{trimmedName}' already exists.");
-            }
+            EnsureNameIsFree(trimmedName, exceptProjectId: null);
 
             var project = new Project
             {
@@ -83,6 +70,36 @@ public class ProjectService : IProjectService
             };
             _projects.Add(project);
             return project;
+        }
+    }
+
+    public async Task<Project> UpdateAsync(int id, string name, string? description, CancellationToken cancellationToken = default)
+    {
+        var trimmedName = ValidateName(name);
+
+        await SimulateDatabaseCallAsync(cancellationToken);
+
+        lock (_gate)
+        {
+            var project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
+
+            // The project may keep its own name; it may not take a name used by ANOTHER project.
+            EnsureNameIsFree(trimmedName, exceptProjectId: id);
+
+            project.Name = trimmedName;
+            project.Description = description;
+            return project;
+        }
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        await SimulateDatabaseCallAsync(cancellationToken);
+
+        lock (_gate)
+        {
+            var project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
+            _projects.Remove(project);
         }
     }
 
@@ -113,6 +130,33 @@ public class ProjectService : IProjectService
 
     // Call only while holding _gate.
     private Project? FindById(int id) => _projects.SingleOrDefault(p => p.Id == id);
+
+    // Call only while holding _gate. The business rule: project names are unique, ignoring case.
+    private void EnsureNameIsFree(string name, int? exceptProjectId)
+    {
+        if (_projects.Any(p => p.Id != exceptProjectId
+                               && string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new ConflictException($"A project named '{name}' already exists.");
+        }
+    }
+
+    private static string ValidateName(string name)
+    {
+        var trimmedName = name.Trim();
+
+        if (trimmedName.Length == 0)
+        {
+            throw new BusinessRuleException("Project name is required.");
+        }
+
+        if (trimmedName.Length > MaxNameLength)
+        {
+            throw new BusinessRuleException($"Project name must be at most {MaxNameLength} characters.");
+        }
+
+        return trimmedName;
+    }
 
     // Stands in for the network + database time of a real query. Task.Delay honours the token:
     // if the caller cancels, it stops waiting and throws OperationCanceledException.
