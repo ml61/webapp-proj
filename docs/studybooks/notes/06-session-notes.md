@@ -18,3 +18,9 @@
   many interfaces, base class first, I-prefix tells which. Framework base classes (Exception, ControllerBase) are the
   common exception to "prefer composition over inheritance".
   Quick check asked: what does `:` mean in ProjectService : IProjectService vs ProjectsController : ControllerBase.
+- **Question:** `NotFound() : Ok(project.ToResponse())` without `this.` — "C# does it for us?" -> YES: bare names resolve
+  to members of the current object incl. inherited ones; `Ok(x)` == `this.Ok(x)`. Different from JS/TS where `this.` is
+  required (bare `ok()` looks for a variable/global). Lookup order: locals/parameters -> class members (own + inherited)
+  -> outer scopes (static, using namespaces). `this.` needed when a parameter/local shadows a field
+  (`this.name = name;`) -> one reason for the `_camelCase` field convention. Trap: primary constructor parameter
+  `projects` is NOT a field: `this.projects` is a compile error; it's just in scope for the whole class.
