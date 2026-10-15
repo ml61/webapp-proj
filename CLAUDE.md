@@ -37,6 +37,8 @@ See `docs/progress.md` (the "Current topic" line at the top is the source of tru
 - Build: `dotnet build`
 - Run API: `dotnet run --project src/ProjectHub.Api` (OpenAPI doc at `/openapi/v1.json` in Development)
 - Tests (from week 3): `dotnet test`
+- Playground demos: `dotnet run --no-cache playground/NN-name.cs` (`--no-cache` matters: without it a cached build
+  can run OLD code after `src/` changed, because the playground file itself did not change)
 - SQL Server: `docker compose up -d` -> `localhost,1433`, user `sa`, password from `docker-compose.yml` (dev only)
 
 ## Stack

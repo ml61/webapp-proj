@@ -27,3 +27,26 @@
 - Bug 2 progress: user found the failing task via Frames: Id 158, and set the conditional breakpoint on the
   `codes.Add(...)` line with `task.Id == 158`.
 - Rider menu in the user's version: exception breakpoints via **Run > Stop on Exception...** (topic 3 + 5 docs fixed).
+- **Lab results (user):** bug 1 understood ("weird for a JS dev"); bug 2: "Migrate  legacy reports" has a double space,
+  Split gives an empty string with no [0]; asked for the solution. Bug 3: RemoveAll on the original project.Tasks.
+  Missing in bug 3: WHY -> `var open = project.Tasks` copies the reference (topic 1), same list, ReferenceEquals true;
+  topic 3 entity leak; topic 2 Where builds a new sequence. Bug 1 wording: integer division truncates toward zero
+  (-7 / 2 = -3), not "rounds down".
+- **Bug 2 solution given:** `Split(' ', StringSplitOptions.RemoveEmptyEntries)`; `words.Length == 0 ? "?"`;
+  `string.Concat(words.Select(w => char.ToUpperInvariant(w[0])))` -> "MLR-158". Lesson: imported/DB data does not pass
+  through your validation; be defensive when reading; clean data at the import boundary.
+- **Fixes applied** (marked "LAB FIX" in DashboardReport.cs). Bug 1 final fix:
+  `(int)Math.Round(done * 100.0 / total, MidpointRounding.AwayFromZero)`. GOTCHA: Math.Round default is banker's rounding
+  (MidpointRounding.ToEven): Math.Round(12.5) = 12, Math.Round(13.5) = 14, with AwayFromZero 12.5 -> 13.
+  Verified output: 2/4 -> 50%, 100/300 -> 33%; 307 codes, task 158 -> MLR-158; project 1 tasks 4 -> 4.
+- **Second real gotcha found while verifying:** `dotnet run playground/X.cs` reused a CACHED build after src/ changed
+  (the playground file itself had not changed) and printed the OLD buggy output although the fixes were in the file.
+  `dotnet run --no-cache ...` rebuilt and showed the fixed output. All playground headers, lessons and CLAUDE.md now use
+  `--no-cache`. Lesson: when behaviour doesn't match the code, suspect a stale build first.
+- **CHECK round 1:** 1 right (+ ask new questions while paused, see how you got there). 2 practical steps but only the
+  "locate" phase -> full method reproduce, locate, hypothesize, verify (Evaluate), fix, re-run (unit test later).
+  3 Over/Into/Out right; Run to Cursor WRONG ("doesn't matter") -> runs to the cursor line as a one-time breakpoint,
+  to skip ahead (e.g. past a loop). 4 right. 5 half -> stops at the throw with all locals alive, even if caught later
+  (runner caught bug 2 -> console showed only FAILED). 6 Evaluate right; Watch unknown ("watched with eyes") ->
+  pinned expression re-evaluated at every step (project.Tasks.Count would flip 4 -> 2 on RemoveAll).
+  7 "not interesting" -> user actually DID it in bug 2 (clicked the caller frame, found task.Id 158).

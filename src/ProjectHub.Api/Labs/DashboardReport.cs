@@ -3,9 +3,8 @@ using ProjectHub.Api.Services;
 
 namespace ProjectHub.Api.Labs;
 
-// DEBUG LAB A (Topic 5): this file contains planted bugs ON PURPOSE.
-// Don't hunt for them by reading: reproduce the symptom, then find the cause with the debugger.
-// Instructions: docs/lessons/05-debugging-fundamentals.md
+// DEBUG LAB A (Topic 5): this file had 3 planted bugs. They are FIXED now; each fix is marked "LAB FIX".
+// Instructions and the debugging walkthrough: docs/lessons/05-debugging-fundamentals.md
 
 public record ProjectProgress(int ProjectId, string Name, int DoneTasks, int TotalTasks, int PercentDone);
 
@@ -53,9 +52,12 @@ public class DashboardReport(IProjectService projects)
 
         foreach (var project in all)
         {
-            var open = project.Tasks;
-            open.RemoveAll(t => t.Status == TaskItemStatus.Done);
-            result[project.Name] = open.OrderByDescending(t => t.CreatedAt).ToList();
+            // LAB FIX (bug 3): was `var open = project.Tasks; open.RemoveAll(...)`. That copied the REFERENCE,
+            // so RemoveAll deleted tasks from the service's real list. Where() builds a new sequence instead.
+            result[project.Name] = project.Tasks
+                .Where(t => t.Status != TaskItemStatus.Done)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToList();
         }
 
         return result;
@@ -68,19 +70,18 @@ public class DashboardReport(IProjectService projects)
             return 0;
         }
 
-        return done / total * 100;
+        // LAB FIX (bug 1): was `done / total * 100`. int / int is integer division (2 / 4 == 0).
+        // 100.0 makes it double math; AwayFromZero rounds 12.5 up to 13 (the default would give 12).
+        return (int)Math.Round(done * 100.0 / total, MidpointRounding.AwayFromZero);
     }
 
     private static string Initials(string title)
     {
-        var words = title.Split(' ');
-        var letters = new char[words.Length];
-
-        for (var i = 0; i < words.Length; i++)
-        {
-            letters[i] = char.ToUpperInvariant(words[i][0]);
-        }
-
-        return new string(letters);
+        // LAB FIX (bug 2): was `title.Split(' ')`. A double space produced an empty word, and ""[0] threw
+        // IndexOutOfRangeException. Imported data does not pass through the service's validation.
+        var words = title.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return words.Length == 0
+            ? "?"
+            : string.Concat(words.Select(w => char.ToUpperInvariant(w[0])));
     }
 }

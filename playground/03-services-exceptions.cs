@@ -2,7 +2,7 @@
 
 // Topic 3: Interfaces, generics, exceptions demo.
 // (Updated in Topic 4: the service is async now, so calls use await and the ...Async names.)
-// Run from the repo root:  dotnet run playground/03-services-exceptions.cs
+// Run from the repo root:  dotnet run --no-cache playground/03-services-exceptions.cs
 
 using ProjectHub.Api.Data;
 using ProjectHub.Api.Entities;

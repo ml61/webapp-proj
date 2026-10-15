@@ -7,7 +7,7 @@
 - `src/ProjectHub.Api/Services/IProjectService.cs`: the contract
 - `src/ProjectHub.Api/Services/ProjectService.cs`: the in-memory implementation, with one business rule
 - `src/ProjectHub.Api/Exceptions/NotFoundException.cs`, `BusinessRuleException.cs`: our own exception types
-- `playground/03-services-exceptions.cs`: runnable demo with 10 sections. Run it from the repo root with `dotnet run playground/03-services-exceptions.cs`.
+- `playground/03-services-exceptions.cs`: runnable demo with 10 sections. Run it from the repo root with `dotnet run --no-cache playground/03-services-exceptions.cs`.
 
 ---
 

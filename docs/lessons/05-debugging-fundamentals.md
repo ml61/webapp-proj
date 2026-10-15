@@ -6,7 +6,7 @@
 **Files for this lesson:**
 - `src/ProjectHub.Api/Labs/DashboardReport.cs`: **contains 3 planted bugs.** Don't read it looking for them; find them with the debugger.
 - `src/ProjectHub.Api/Labs/DebugLabA.cs`: the runner that reproduces the three bug reports (not buggy)
-- `playground/05-debug-lab.cs`: runs the lab without the debugger, to see the symptoms. Run it from the repo root with `dotnet run playground/05-debug-lab.cs`.
+- `playground/05-debug-lab.cs`: runs the lab without the debugger, to see the symptoms. Run it from the repo root with `dotnet run --no-cache playground/05-debug-lab.cs`.
 
 ---
 
@@ -58,7 +58,7 @@ Menu names can differ slightly between Rider versions. If something isn't exactl
 ## 4. Debug Lab A
 
 ### Setup
-1. `git pull`, then run `dotnet run playground/05-debug-lab.cs` once **without** the debugger and read the three symptoms:
+1. `git pull`, then run `dotnet run --no-cache playground/05-debug-lab.cs` once **without** the debugger and read the three symptoms:
    ```
    Bug report 1: Website redesign  2/4 done -> 0%     (expected 50%)
    Bug report 2: FAILED: IndexOutOfRangeException      (expected a list of codes)

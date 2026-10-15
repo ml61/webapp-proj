@@ -1,7 +1,7 @@
 #:project ../src/ProjectHub.Api/ProjectHub.Api.csproj
 
 // Topic 4: async/await demo.
-// Run from the repo root:  dotnet run playground/04-async.cs
+// Run from the repo root:  dotnet run --no-cache playground/04-async.cs
 // Timings in the output are approximate and depend on your machine.
 
 using System.Diagnostics;

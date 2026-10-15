@@ -6,7 +6,7 @@
 **Files for this lesson:**
 - `src/ProjectHub.Api/Services/IProjectService.cs`: now async (`...Async` methods returning `Task<T>`, each takes a `CancellationToken`)
 - `src/ProjectHub.Api/Services/ProjectService.cs`: async, simulated database latency, `lock` for thread safety
-- `playground/04-async.cs`: runnable demo with 8 sections. Run it from the repo root with `dotnet run playground/04-async.cs`.
+- `playground/04-async.cs`: runnable demo with 8 sections. Run it from the repo root with `dotnet run --no-cache playground/04-async.cs`.
 - `playground/03-services-exceptions.cs`: updated to the async API, with the same lessons as before
 
 ---

@@ -4,7 +4,7 @@ using ProjectHub.Api.Services;
 
 namespace ProjectHub.Api.Labs;
 
-// DEBUG LAB A (Topic 5): reproduces three bug reports. This runner is NOT buggy; DashboardReport is.
+// DEBUG LAB A (Topic 5): reproduces three bug reports (DashboardReport had the bugs; they are fixed now).
 // Start it with the debugger by temporarily adding this line to Program.cs, right before app.Run():
 //     await ProjectHub.Api.Labs.DebugLabA.RunAsync();
 public static class DebugLabA
@@ -25,7 +25,7 @@ public static class DebugLabA
         try
         {
             var codes = await report.GetTaskCodesAsync();
-            Console.WriteLine($"  {codes.Count} codes, first: {codes[0]}");
+            Console.WriteLine($"  {codes.Count} codes, first: {codes[0]}, task 158: {codes.Single(c => c.EndsWith("-158"))}");
         }
         catch (Exception ex)
         {

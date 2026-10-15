@@ -5,7 +5,7 @@
 
 **Files for this lesson:**
 - `src/ProjectHub.Api/Data/SampleData.cs`: sample projects and tasks (also reused in Topic 6)
-- `playground/02-linq.cs`: runnable demo with 13 sections. Run it from the repo root with `dotnet run playground/02-linq.cs`.
+- `playground/02-linq.cs`: runnable demo with 13 sections. Run it from the repo root with `dotnet run --no-cache playground/02-linq.cs`.
 
 ---
 

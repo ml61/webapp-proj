@@ -1,7 +1,7 @@
 #:project ../src/ProjectHub.Api/ProjectHub.Api.csproj
 
 // Topic 2: Collections + LINQ demo.
-// Run from the repo root:  dotnet run playground/02-linq.cs
+// Run from the repo root:  dotnet run --no-cache playground/02-linq.cs
 // Each section shows the TypeScript equivalent in a comment above the C#.
 
 using ProjectHub.Api.Data;
