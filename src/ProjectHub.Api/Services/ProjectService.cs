@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using ProjectHub.Api.Entities;
 using ProjectHub.Api.Exceptions;
 
@@ -11,6 +12,7 @@ public class ProjectService : IProjectService
 
     private readonly List<Project> _projects;
     private readonly TimeSpan _simulatedLatency;
+    private readonly ILogger<ProjectService> _logger;
 
     // Async callers can run at the same time on different threads, so every access to the
     // shared list and id counters happens inside lock (_gate): one thread at a time.
@@ -18,10 +20,15 @@ public class ProjectService : IProjectService
     private int _nextProjectId;
     private int _nextTaskId;
 
-    public ProjectService(IEnumerable<Project> initialProjects, TimeSpan simulatedLatency = default)
+    // logger is optional so demos and tests can create the service without logging (NullLogger writes nothing).
+    public ProjectService(
+        IEnumerable<Project> initialProjects,
+        TimeSpan simulatedLatency = default,
+        ILogger<ProjectService>? logger = null)
     {
         _projects = initialProjects.ToList();
         _simulatedLatency = simulatedLatency;
+        _logger = logger ?? NullLogger<ProjectService>.Instance;
 
         // DefaultIfEmpty(0): Max() on an empty sequence would throw (Topic 2 gotcha).
         _nextProjectId = _projects.Select(p => p.Id).DefaultIfEmpty(0).Max() + 1;
@@ -56,21 +63,26 @@ public class ProjectService : IProjectService
 
         await SimulateDatabaseCallAsync(cancellationToken);
 
+        Project project;
         lock (_gate)
         {
             // Check AND add inside the same lock: otherwise two concurrent calls with the same name
             // could both pass the check before either one adds (a "check-then-act" race).
             EnsureNameIsFree(trimmedName, exceptProjectId: null);
 
-            var project = new Project
+            project = new Project
             {
                 Id = _nextProjectId++,
                 Name = trimmedName,
                 Description = description,
             };
             _projects.Add(project);
-            return project;
         }
+
+        // Log AFTER the lock: other requests never wait for logging.
+        // A message TEMPLATE with named placeholders (not $"..."): ProjectId and ProjectName become searchable fields.
+        _logger.LogInformation("Created project {ProjectId} {ProjectName}", project.Id, project.Name);
+        return project;
     }
 
     public async Task<Project> UpdateAsync(int id, string name, string? description, CancellationToken cancellationToken = default)
@@ -79,17 +91,20 @@ public class ProjectService : IProjectService
 
         await SimulateDatabaseCallAsync(cancellationToken);
 
+        Project project;
         lock (_gate)
         {
-            var project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
+            project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
 
             // The project may keep its own name; it may not take a name used by ANOTHER project.
             EnsureNameIsFree(trimmedName, exceptProjectId: id);
 
             project.Name = trimmedName;
             project.Description = description;
-            return project;
         }
+
+        _logger.LogInformation("Updated project {ProjectId} {ProjectName}", project.Id, project.Name);
+        return project;
     }
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
@@ -101,6 +116,8 @@ public class ProjectService : IProjectService
             var project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
             _projects.Remove(project);
         }
+
+        _logger.LogInformation("Deleted project {ProjectId}", id);
     }
 
     public async Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default)
@@ -113,19 +130,22 @@ public class ProjectService : IProjectService
 
         await SimulateDatabaseCallAsync(cancellationToken);
 
+        TaskItem task;
         lock (_gate)
         {
             var project = FindById(projectId) ?? throw new NotFoundException(nameof(Project), projectId);
 
-            var task = new TaskItem
+            task = new TaskItem
             {
                 Id = _nextTaskId++,
                 ProjectId = project.Id,
                 Title = trimmedTitle,
             };
             project.Tasks.Add(task);
-            return task;
         }
+
+        _logger.LogInformation("Added task {TaskId} to project {ProjectId}", task.Id, task.ProjectId);
+        return task;
     }
 
     // Call only while holding _gate.

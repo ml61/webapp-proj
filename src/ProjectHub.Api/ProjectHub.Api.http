@@ -94,3 +94,9 @@ DELETE {{host}}/api/projects/4
 
 ### 404: delete it again
 DELETE {{host}}/api/projects/4
+
+### Topic 7 lab: DI lifetimes. Send it TWICE and compare the ids (singleton / scoped / transient)
+GET {{host}}/api/labs/lifetimes
+
+### Topic 7: look at the X-Response-Time-Ms response header (added by RequestTimingMiddleware)
+GET {{host}}/api/projects

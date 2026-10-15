@@ -1,0 +1,56 @@
+### lifetimes, request 1
+{"controller":{"singleton":"ef200b0b","scoped":"222eb6c4","transient":"08a150dd"},"reporter":{"singleton":"ef200b0b","scoped":"222eb6c4","transient":"ace29ac3"}}
+### lifetimes, request 2
+{"controller":{"singleton":"ef200b0b","scoped":"34f8a033","transient":"69a01101"},"reporter":{"singleton":"ef200b0b","scoped":"34f8a033","transient":"9d9ee21f"}}
+### GET /api/projects (headers)
+HTTP/1.1 200 OK
+X-Response-Time-Ms: 51
+### POST create
+HTTP/1.1 201 Created
+X-Response-Time-Ms: 123
+### POST duplicate
+HTTP/1.1 409 Conflict
+X-Response-Time-Ms: 77
+### POST task
+201
+### DELETE
+204
+
+=== API log (Development, 50 ms latency) ===
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP GET /api/projects responded 200 in 166 ms
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP GET /api/labs/lifetimes responded 200 in 9 ms
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP GET /api/labs/lifetimes responded 200 in 1 ms
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP GET /api/projects responded 200 in 51 ms
+info: ProjectHub.Api.Services.ProjectService[0]
+      Created project 4 Docs portal
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP POST /api/projects responded 201 in 123 ms
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP POST /api/projects responded 409 in 77 ms
+info: ProjectHub.Api.Services.ProjectService[0]
+      Added task 8 to project 4
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP POST /api/projects/4/tasks responded 201 in 68 ms
+info: ProjectHub.Api.Services.ProjectService[0]
+      Deleted project 4
+info: ProjectHub.Api.Middleware.RequestTimingMiddleware[0]
+      HTTP DELETE /api/projects/4 responded 204 in 68 ms
+
+### A) environment variable override: ProjectStore__SimulatedLatencyMs=500
+HTTP/1.1 200 OK
+X-Response-Time-Ms: 601
+
+### B) invalid value: ProjectStore__SimulatedLatencyMs=-1
+exit code: 134
+      Microsoft.Extensions.Options.OptionsValidationException: DataAnnotation validation failed for 'ProjectStoreOptions' members: 'SimulatedLatencyMs' with the error: 'The field SimulatedLatencyMs must be between 0 and 10000.'.
+Unhandled exception. Microsoft.Extensions.Options.OptionsValidationException: DataAnnotation validation failed for 'ProjectStoreOptions' members: 'SimulatedLatencyMs' with the error: 'The field SimulatedLatencyMs must be between 0 and 10000.'.
+
+### C) captive dependency (LifetimeReporter registered as singleton)
+exit code: 134
+Cannot consume scoped service 'ProjectHub.Api.Labs.Lifetimes.ScopedOperation' from singleton 'ProjectHub.Api.Labs.Lifetimes.LifetimeReporter'.
