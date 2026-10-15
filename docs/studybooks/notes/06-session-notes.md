@@ -37,3 +37,19 @@
   Catch order: ConflictException derives from BusinessRuleException, so it must be caught first (else every conflict
   -> 400; compiler refuses the wrong order). Type decides the status code, message goes to `detail` (why custom
   exception types, topic 3). TS analogy: throw new ConflictError deep in a service, `instanceof` in the Express handler.
+- **DEBUG (user):** 2 IsCancellationRequested = false (right). 3 automatic 400, breakpoint not hit (right; precision: the
+  FRAMEWORK's [ApiController] validation, not our controller code). 4 /abc not hit -> user said "validated, type not ok,
+  auto 404" -> WRONG reason: ROUTING, {id:int} doesn't match "abc", no action matches, request never reaches model
+  binding / [ApiController] -> empty body, no ProblemDetails (validation would be 400 with errors). 5 swapped catches ->
+  CS0160 "A previous catch clause already catches all exceptions of this or of a super type" (right). 6 asked "tell me":
+  without JsonStringEnumConverter enums serialize as numbers ("status":2 for Done; Todo=0, InProgress=1, Done=2) ->
+  magic numbers for the frontend; inserting a new enum value shifts numbers and silently breaks old clients.
+- **CHECK round 1:** 1 mostly right (404 two flavors: no route vs missing resource; 500 = unexpected failure, the
+  global handler only writes it). 2 half: 400 = invalid by itself (shape OR values, "   " has a perfect shape),
+  409 = valid but conflicts with current state; retrying 400 never works, 409 may later. 3 definition right, verbs
+  WRONG ("put/patch") -> GET, PUT, DELETE idempotent; PATCH not necessarily; POST not; retries after timeouts safe for
+  PUT/DELETE, POST may duplicate. 4 didn't know -> 201 + Location header (URL from GetById route) + body.
+  5 good (no mutable references, no sensitive data exposure) + add over-posting and stable contract.
+  6 half: checks REQUESTS (automatic 400), + ProblemDetails, + binding source inference; routing is from
+  [Route]/[HttpGet]. 7 mostly right: HttpContext.RequestAborted, cancelled when the client disconnects.
+  8 skipped (singleton). 9 wrong reason ("not found first of all") -> route constraint. 10 right.
