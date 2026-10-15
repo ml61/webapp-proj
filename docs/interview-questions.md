@@ -68,3 +68,16 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] Is `List<T>` thread-safe? What can happen without a lock?
 - [ ] What does a lock guarantee about which thread wins?
 - [ ] Why make `IProjectService` async when the data is in memory?
+
+## Topic 5: Debugging
+- [ ] How do you debug a bug locally? (reproduce, locate, hypothesize, verify, fix, re-run)
+- [ ] Why use a debugger instead of `Console.WriteLine`? When are logs the right tool?
+- [ ] Step Over vs Step Into vs Step Out vs Run to Cursor
+- [ ] What is a conditional breakpoint? A hit count? A logpoint?
+- [ ] What does an exception breakpoint give you that a console stack trace doesn't?
+- [ ] Watch vs Evaluate Expression
+- [ ] How do you find out which caller passed a bad value? (Frames)
+- [ ] What is `2 / 4` in C#, and why? What does `Math.Round(2.5)` return?
+- [ ] How can `Split(' ')` crash? Why read imported data defensively?
+- [ ] How did a "read-only" report delete data? (copied reference)
+- [ ] The code looks fixed but the old behaviour remains: what do you suspect first?

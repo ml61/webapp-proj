@@ -1,6 +1,6 @@
 # Progress
 
-**Current topic:** 5 — Debugging fundamentals (local)
+**Current topic:** 6 — HTTP + REST: routes, verbs, status codes, DTOs, controllers
 **Track:** 4 weeks, 2–3 h/day. Daily loop: LEARN (30–40%) → BUILD (40–50%) → DEBUG (10–20%) → CHECK.
 
 Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
@@ -12,7 +12,7 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
 | 2 | Collections + LINQ: `List<T>`, `Dictionary`, `IEnumerable`, lambdas | Filter, sort, group, project sample ProjectHub data | Translate map/filter/find into LINQ | [x] |
 | 3 | Interfaces, generics, exceptions | `IProjectService` + `ProjectService`, one business validation rule | Explain interface vs class; handle an expected error | [x] |
 | 4 | Async/await: `Task`, `Task<T>`, I/O, `CancellationToken` | Make service calls async, pass a CancellationToken through one path | Explain why backend I/O should be awaited | [x] |
-| 5 | Debugging fundamentals (local) | Debug Lab A | Find a bug without `Console.WriteLine` | [~] |
+| 5 | Debugging fundamentals (local) | Debug Lab A | Find a bug without `Console.WriteLine` | [x] |
 
 ## Week 2 — ASP.NET Core + SQL + EF Core
 | # | Topic | Build / try | Checkpoint | Status |

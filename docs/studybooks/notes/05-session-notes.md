@@ -50,3 +50,8 @@
   (runner caught bug 2 -> console showed only FAILED). 6 Evaluate right; Watch unknown ("watched with eyes") ->
   pinned expression re-evaluated at every step (project.Tasks.Count would flip 4 -> 2 on RemoveAll).
   7 "not interesting" -> user actually DID it in bug 2 (clicked the caller frame, found task.Id 158).
+- **Re-check:** 1 Run to Cursor right (lab example: cursor on `return codes;` skips the 300-task loop). 2 half: stops at
+  the throw with locals alive — missing "even if caught later" (runner caught it, console only said FAILED).
+  3 half: Watch = PINNED expression re-evaluated AUTOMATICALLY at every step (Count 4 -> 2 on RemoveAll).
+  4 "reference type" too short -> "`var open = project.Tasks` copied the reference, not the list, so RemoveAll on open
+  removed tasks from the service's real list."
