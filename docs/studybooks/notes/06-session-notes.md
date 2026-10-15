@@ -24,3 +24,16 @@
   -> outer scopes (static, using namespaces). `this.` needed when a parameter/local shadows a field
   (`this.name = name;`) -> one reason for the `_camelCase` field convention. Trap: primary constructor parameter
   `projects` is NOT a field: `this.projects` is a compile error; it's just in scope for the whole class.
+- **User request ("add info so I don't forget"):** the controller's Update can catch NotFound/Conflict/BusinessRule
+  exceptions because the service threw them. Screenshots (user underlined the throw lines):
+  img/06-update-async-throws.png (UpdateAsync: `FindById(id) ?? throw new NotFoundException(...)`,
+  `EnsureNameIsFree(trimmedName, exceptProjectId: id)`), img/06-ensure-name-is-free-throws.png
+  (`throw new ConflictException(...)`). Include both images + the Update action code in the study book.
+  Explanation: throw -> method exits immediately -> exception travels up the call stack until a matching catch ->
+  passes through `lock` which is RELEASED automatically (lock = try/finally) -> async: stored in the Task, re-thrown at
+  the controller's await -> catch blocks checked top to bottom by TYPE -> Problem(..., code).
+  Table: NotFoundException (FindById ?? throw) -> 404; ConflictException (EnsureNameIsFree) -> 409;
+  BusinessRuleException (ValidateName) -> 400; anything else -> no matching catch -> 500 from ASP.NET (topic 12).
+  Catch order: ConflictException derives from BusinessRuleException, so it must be caught first (else every conflict
+  -> 400; compiler refuses the wrong order). Type decides the status code, message goes to `detail` (why custom
+  exception types, topic 3). TS analogy: throw new ConflictError deep in a service, `instanceof` in the Express handler.
