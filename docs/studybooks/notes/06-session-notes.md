@@ -53,3 +53,7 @@
   6 half: checks REQUESTS (automatic 400), + ProblemDetails, + binding source inference; routing is from
   [Route]/[HttpGet]. 7 mostly right: HttpContext.RequestAborted, cancelled when the client disconnects.
   8 skipped (singleton). 9 wrong reason ("not found first of all") -> route constraint. 10 right.
+- **Re-check (all right):** A GET/PUT/DELETE idempotent; retries without duplicates. B 201 + Location (URL to GET the
+  new item) + body. C one shared unit; per-request instances would start from fresh sample data, a POSTed project would
+  vanish on the next GET (+ shared by parallel requests -> topic 4 lock). D wrong route: `{id:int}` doesn't match
+  "abc", no action matches -> routing 404 before model binding, no ProblemDetails body.

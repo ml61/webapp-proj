@@ -81,3 +81,20 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] How can `Split(' ')` crash? Why read imported data defensively?
 - [ ] How did a "read-only" report delete data? (copied reference)
 - [ ] The code looks fixed but the old behaviour remains: what do you suspect first?
+
+## Topic 6: HTTP + REST, controllers, DTOs
+- [ ] What do 200, 201, 204, 400, 404, 409, 500 mean? A ProjectHub example of each
+- [ ] 400 vs 409
+- [ ] What is idempotency? Which verbs are idempotent, and why does it matter for retries?
+- [ ] What does `CreatedAtAction` return? What is the `Location` header for?
+- [ ] Why DTOs instead of returning entities? (five reasons)
+- [ ] What does `[ApiController]` do?
+- [ ] `ActionResult<T>` vs `IActionResult`
+- [ ] Where does an action's `CancellationToken` come from?
+- [ ] Why is the in-memory `ProjectService` a singleton, and why does that need a lock?
+- [ ] Why does `/api/projects/abc` return 404 with an empty body?
+- [ ] What is ProblemDetails?
+- [ ] How does an exception thrown in the service become an HTTP status code?
+- [ ] Why must `catch (ConflictException)` come before `catch (BusinessRuleException)`?
+- [ ] What does `: ControllerBase` give a controller? Why can you call `Ok()` without `this.`?
+- [ ] Why return enums as strings in JSON?

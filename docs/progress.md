@@ -1,6 +1,6 @@
 # Progress
 
-**Current topic:** 6 — HTTP + REST: routes, verbs, status codes, DTOs, controllers
+**Current topic:** 7 — DI, middleware, config, ILogger
 **Track:** 4 weeks, 2–3 h/day. Daily loop: LEARN (30–40%) → BUILD (40–50%) → DEBUG (10–20%) → CHECK.
 
 Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
@@ -17,7 +17,7 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
 ## Week 2 — ASP.NET Core + SQL + EF Core
 | # | Topic | Build / try | Checkpoint | Status |
 |---|---|---|---|---|
-| 6 | HTTP + REST: routes, verbs, status codes, DTOs, controllers | CRUD endpoints with in-memory storage | GET/POST/PUT/DELETE work with sensible status codes | [~] |
+| 6 | HTTP + REST: routes, verbs, status codes, DTOs, controllers | CRUD endpoints with in-memory storage | GET/POST/PUT/DELETE work with sensible status codes | [x] |
 | 7 | DI, middleware, config, `ILogger` | ProjectService into DI; request timing middleware | Explain Scoped vs Transient vs Singleton | [ ] |
 | 8 | SQL basics: tables, PK/FK, SELECT/WHERE/ORDER BY, INSERT/UPDATE/DELETE | Create ProjectHubDb by hand; write 10 queries (`sql/`) | Query and change data without EF Core | [ ] |
 | 9 | JOINs, GROUP BY/HAVING, subqueries/EXISTS, transactions | "Tasks per project" + "overdue tasks" reports; BEGIN TRAN + ROLLBACK | Explain why a JOIN is needed and what a transaction protects | [ ] |
