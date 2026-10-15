@@ -18,3 +18,12 @@
   (double) so 2/4 = 0.5. Evaluate table: 2/4 -> 0; 2/4.0 -> 0.5; 2*100/4 -> 50; 100*100/300 -> 33;
   (int)Math.Round(100*100.0/300) -> 33. Fixes: `done * 100 / total` (truncates 66.67 -> 66) or
   `(int)Math.Round(done * 100.0 / total)` (rounds -> 67, preferred).
+- **User request:** note the Rider breakpoint popup (screenshot docs/studybooks/notes/img/rider-conditional-breakpoint.png)
+  for this study book AND the previous one (added to topic 4 Part 10 as "Rider tip, added later" via
+  common.RIDER_BREAKPOINT_TIP). Right-click the red dot -> "Line breakpoint" popup: Enabled; Suspend execution
+  (unchecked + log message in More = logpoint/tracepoint); Condition (`task.Id == 158`, history dropdown, expand
+  editor); More (Shift+Cmd+F8) = full breakpoint dialog (hit count, log message); Done.
+  -> Use RIDER_BREAKPOINT_TIP in the topic 5 study book (bug 2 section).
+- Bug 2 progress: user found the failing task via Frames: Id 158, and set the conditional breakpoint on the
+  `codes.Add(...)` line with `task.Id == 158`.
+- Rider menu in the user's version: exception breakpoints via **Run > Stop on Exception...** (topic 3 + 5 docs fixed).

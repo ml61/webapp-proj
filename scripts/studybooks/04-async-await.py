@@ -303,6 +303,10 @@ S += TABLE([
     ["With `await`", "no 'Continued happily'", "the exception surfaced at the await and stopped the program"],
 ], [30, 66, 74])
 
+S += H3("Rider tip, added later (from your Topic 5 lab)")
+S += P("Breakpoints have options. Here, a condition such as `id == 2` on breakpoint B would stop only for the second `WhenAll` call instead of all three.")
+S += RIDER_BREAKPOINT_TIP(os.path.join(ROOT, "docs/studybooks/notes/img/rider-conditional-breakpoint.png"))
+
 # ---------------------------------------------------------------- PART 11
 S += PageBreak()
 S += H1("Part 11. Your answers, corrections, interview Q&A")

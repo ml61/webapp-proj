@@ -9,7 +9,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph, Spacer,
                                 PageBreak, Preformatted, Table, TableStyle, KeepTogether,
-                                ListFlowable, ListItem)
+                                ListFlowable, ListItem, Image)
 
 FD = "/usr/share/fonts/truetype/dejavu/"
 pdfmetrics.registerFont(TTFont("Sans", FD + "DejaVuSans.ttf"))
@@ -177,3 +177,29 @@ def cover(kicker, title_text, subtitle_text):
     return [Spacer(1, 30),
             Paragraph(kicker, ParagraphStyle("kicker", parent=body, fontName="Sans-Bold", fontSize=11, textColor=ACCENT)),
             Paragraph(title_text, title), Paragraph(subtitle_text, subtitle)]
+
+
+def IMG(path, width_mm=150, caption=None):
+    """An image scaled to width_mm, keeping its aspect ratio, with an optional caption below."""
+    from PIL import Image as PILImage
+    w, h = PILImage.open(path).size
+    img = Image(path, width=width_mm * mm, height=width_mm * mm * h / w)
+    out = [Spacer(1, 4), img]
+    if caption:
+        out.append(P(caption, small))
+    out.append(Spacer(1, 8))
+    return [KeepTogether(out)]
+
+
+def RIDER_BREAKPOINT_TIP(image_path):
+    """The breakpoint popup from the user's own Rider (topic 5 screenshot); shared by several study books."""
+    return NOTE([
+        "**Right-click the red breakpoint dot** to open the **Line breakpoint** popup (your Rider, Topic 5):",
+        "**Enabled**: switch the breakpoint off without deleting it.",
+        "**Suspend execution**: checked = pause here (normal breakpoint). Unchecked = do not pause; together with a log message in **More** it becomes a "
+        "**logpoint / tracepoint** that prints without stopping and without editing code.",
+        "**Condition**: a C# expression evaluated at this line; the debugger pauses only when it is `true`, e.g. `task.Id == 158`. "
+        "The arrow on the right shows conditions you used before; the expand icon gives a bigger editor.",
+        "**More (Shift+Cmd+F8)**: the full breakpoint dialog (hit count, log message, all breakpoints in one list).",
+        "**Done** saves it. A conditional breakpoint gets a small mark on its red dot.",
+    ], "Rider: the breakpoint popup") + IMG(image_path, 150, "Your Rider: a conditional breakpoint on the codes.Add line, condition task.Id == 158 (Debug Lab A, bug 2).")
