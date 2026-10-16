@@ -114,3 +114,19 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] What are the Options pattern and `ValidateOnStart` for?
 - [ ] Why message templates instead of string interpolation in log calls?
 - [ ] What does the `T` in `ILogger<T>` do? How do log levels work?
+
+## Topic 8: SQL basics
+- [ ] Table, row, column, primary key, foreign key (with ProjectHub examples)
+- [ ] How is a one-to-many relationship stored? Why does `Projects` have no "tasks" column?
+- [ ] What does `IDENTITY(1, 1)` do? Why are there gaps in the ids?
+- [ ] Is a foreign key an index? What does SQL Server index automatically?
+- [ ] Why put a UNIQUE constraint in the database when the code already checks? (two reasons)
+- [ ] `NVARCHAR` vs `VARCHAR`
+- [ ] Why does `WHERE x = NULL` return nothing? What about `WHERE x <> 'a'` for NULL rows?
+- [ ] Why must a UI query have `ORDER BY`?
+- [ ] In which order is a SELECT logically evaluated?
+- [ ] What's dangerous about UPDATE/DELETE, and what's your safety habit?
+- [ ] Map SQL errors 2627, 547 and 515 to HTTP status codes
+- [ ] What is SQL injection, and what prevents it?
+- [ ] What is `GO`?
+- [ ] A query returns no rows but the table has data: what do you check first?

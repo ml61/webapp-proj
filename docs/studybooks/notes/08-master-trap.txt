@@ -1,0 +1,40 @@
+# Reproduction of setup problems 7-8 (cloud, sqlcmd): a stray empty dbo.Projects in master
+USE master;
+GO
+SELECT DB_NAME() AS CurrentDb;
+-- what the failed first DBeaver run of 02 left behind:
+CREATE TABLE dbo.Projects (Id INT IDENTITY(1,1) PRIMARY KEY, Name NVARCHAR(100) NOT NULL, Description NVARCHAR(1000) NULL, CreatedAt DATETIME2(7) NOT NULL DEFAULT SYSUTCDATETIME());
+GO
+SELECT * FROM dbo.Projects;                  -- the empty stray table (your "omg" / "no result still")
+SELECT COUNT(*) AS RealRows FROM ProjectHubDb.dbo.Projects;   -- three-part name works from any database
+DROP TABLE dbo.Projects;
+GO
+SELECT * FROM dbo.Projects;                  -- now it fails loudly instead of lying
+GO
+# ---- output
+Changed database context to 'master'.
+CurrentDb
+---------
+master
+
+(1 rows affected)
+Id Name Description CreatedAt
+-- ---- ----------- ---------
+
+(0 rows affected)
+RealRows
+--------
+3
+
+(1 rows affected)
+Msg 208, Level 16, State 1, Server 7a3b197acd25, Line 1
+Invalid object name 'dbo.Projects'.
+
+# Re-check (c) and DEBUG task 2, run in ProjectHubDb
+USE ProjectHubDb;
+GO
+SELECT DB_NAME() AS CurrentDb;
+SELECT Id, Title, CreatedAt FROM dbo.Tasks WHERE ProjectId = 2 AND Status = 0 ORDER BY CreatedAt ASC;
+SELECT Id, Name FROM dbo.Projects WHERE Description <> N'x' ORDER BY Id;
+SELECT Id, Name FROM ProjectHubDb.dbo.Projects ORDER BY Id;
+GO
