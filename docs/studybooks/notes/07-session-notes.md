@@ -14,3 +14,13 @@
   at startup (exit 134). HTTPS warning "Failed to determine the https port for redirect" = http-only profile, harmless.
 - Tooling gotcha (again): `pkill -f <pattern>` killed my own shell when the same command line contained the pattern
   (I started bin/Debug/.../ProjectHub.Api.dll in that command). Fix: run experiments in a script with `timeout`.
+- **Question:** "what is composition — like anti-inheritance? so like independent?" -> Not quite: another way to reuse
+  code. Inheritance = IS-A (`class X : BaseClass`, become a subtype); composition = HAS-A (hold other objects as
+  fields/ctor params and call them). React analogy: React docs "Composition vs Inheritance" — components built OUT OF
+  components (children, props, hooks), never `extends Button`. Our code: `ProjectsController(IProjectService projects)
+  : ControllerBase` has both (has-a service, is-a ControllerBase); ProjectService has List/Lock/ILogger;
+  LoggingProjectService wraps an inner IProjectService (decorator = composition); DashboardReport has IProjectService.
+  Why prefer: swappable parts (DI, EF in topic 10, fakes in tests), only one base class, no fragile base class,
+  small focused classes instead of deep hierarchies. "Independent" is partly right: LOOSELY COUPLED (doesn't know
+  which implementation) but still DEPENDS on the part's interface — DI plugs it in. Inheritance stays normal for
+  framework base classes and real is-a families. One-sentence interview answer recorded in chat.
