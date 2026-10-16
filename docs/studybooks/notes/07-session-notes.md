@@ -82,3 +82,8 @@
   there counts creations only (expected 4 then 3); lesson step 8.1 updated with a "watch out" about getter lines.
   Verified lifetimes endpoint still behaves the same. Lesson for me: I blamed the environment before checking my own
   prediction's assumption (what the breakpoint line actually covers).
+- **DEBUG step 3 (user):** captive dependency -> "Some services are not able to be constructed". Asked (briefly):
+  "what uses the reporter so it's not ok? what's the problem with it being a singleton?" -> Not who USES it but what it
+  HOLDS: LifetimeReporter's constructor takes a ScopedOperation; as a singleton it's created once and keeps request 1's
+  scoped object forever (real life: a DbContext or the current user leaking across users' requests). Rule: depend only
+  on things that live at least as long as yourself.
