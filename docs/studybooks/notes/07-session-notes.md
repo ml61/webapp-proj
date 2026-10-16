@@ -100,3 +100,14 @@
   searchable fields; $"" bakes text; template not formatted if level off. 10 ? -> T = category shown per line; levels
   Trace<Debug<Information<Warning<Error<Critical; Logging:LogLevel minimum per category (Default Information,
   Microsoft.AspNetCore Warning).
+- **Question:** "container is what? Program? 'passes them into its constructor' — what, where? All I see is we declare
+  in Program and then just have them in constructors of deeply nested classes." Answer: Program.cs = where you WRITE
+  the recipe book (`builder.Services` = list of registrations, nothing created yet); `builder.Build()` turns it into
+  THE CONTAINER (a ServiceProvider object in memory inside the running app; the `serviceProvider` in the factory IS
+  it, GetRequiredService = asking it by hand); per request ASP.NET asks the container for LifetimesController ->
+  container reads the constructor, creates/reuses the dependencies recursively and CALLS THE CONSTRUCTOR ITSELF
+  (pseudo-code shown). "You never write new; the container writes it for you." User's observation is exactly right.
+  React analogy: Provider at the top + useContext deep inside, but the container also creates and manages lifetimes.
+- **Re-check (all right):** A headers gone after next; B typed config + validation, app won't start with a bad value;
+  C track/filter by project (searchable field); D environment variable wins. DEBUG step 4: app didn't start
+  (validation) — right.
