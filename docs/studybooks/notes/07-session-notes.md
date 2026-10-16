@@ -33,3 +33,9 @@
   AddControllers -> MapControllers fails at startup asking for AddControllers. Analogies: NestJS decorators
   (@Controller/@Get) = attributes; Next.js is the opposite (folder IS the route). See all discovered endpoints at
   /openapi/v1.json.
+- **User ran the lifetimes lab themselves (2 requests in one session):** "singleton same during run/debug session;
+  scoped per request; transient always unique, just in a scope of a class or something" -> Q1 answered. Precisions:
+  singleton = lifetime of the app PROCESS (restart -> new id; also why in-memory projects reset on restart);
+  transient = per INJECTION (every resolution), not per class: a class asking twice gets two objects; controller and
+  reporter asked once each -> 2 ids per request. Interview lines: singleton one per app; scoped one per HTTP request;
+  transient new every time it's injected.
