@@ -14,3 +14,10 @@
   C1 2627 UQ_Projects_Name (MOBILE APP); C2 547 FK; C3 547 CHECK; C4 515 NULL; C5 547 REFERENCE; C6 identity gap ->
   Id 7. 04 is re-runnable (verified twice).
 - Docker daemon in the cloud container had to be restarted manually (session restarted since setup script ran).
+- **Question:** "FK is actually an index — the 'id' of a row of another table, so they are linked, right?" ->
+  Idea right (an FK column stores the PK value of a row in another table: task 5 ProjectId = 2 -> belongs to project 2;
+  JS: tasks[{ id: 5, projectId: 2 }]), word wrong: an FK is not an index. Three separate things on Tasks.ProjectId:
+  the COLUMN (stores a number), the FOREIGN KEY (a RULE: must reference an existing project; blocks deleting a
+  referenced project), the INDEX (SPEED, IX_Tasks_ProjectId). FK = correctness, index = speed. SQL Server does NOT
+  auto-index FKs (it does for PK and UNIQUE) -> we created IX_Tasks_ProjectId ourselves. One-liner: "a foreign key is
+  a column holding another table's primary key value, plus a rule that the referenced row must exist."
