@@ -219,7 +219,9 @@ In Rider's **Terminal** (repo root):
 ```
 Expected: `=== sql/01...`, `=== sql/02...` (`Projects`, `Tasks`), `=== sql/03...` with `(3 rows affected)` and `(7 rows affected)`, and **no `Msg ...` error lines**. You can run it again any time: it resets the tables to the sample data.
 
-Then in DBeaver: right-click the connection → **Refresh**, and expand **Databases → ProjectHubDb → Schemas → dbo → Tables**: `Projects` and `Tasks`.
+Then in DBeaver:
+1. Right-click the connection → **Refresh**, and expand **Databases → ProjectHubDb → Schemas → dbo → Tables**: `Projects` and `Tasks`.
+2. **Point the connection at the new database:** right-click the connection → **Edit Connection** (F4) → **Main** → **Database:** `ProjectHubDb` → OK. The toolbar now shows `dbo@ProjectHubDb`. **Why this matters:** with `dbo@master`, a query like `SELECT * FROM dbo.Projects` runs in the **master** database. In our session an earlier failed run had created an empty `Projects` table there, so the query showed columns and no rows. Always check which database a query runs in.
 
 ### 8.2 Queries 04 and 05: in DBeaver, one statement at a time
 1. **File → Open File…** → `sql/04-queries.sql`.

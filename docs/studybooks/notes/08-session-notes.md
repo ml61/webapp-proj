@@ -58,3 +58,11 @@
   scripts/run-sql.sh (docker exec -i ... sqlcmd -C -b -W < file), verified 01-03 run cleanly. DBeaver kept for
   browsing + 04/05 one statement at a time (select the query text first if DBeaver cuts it; run `USE ProjectHubDb`
   first or pick ProjectHubDb in the toolbar database selector). Lesson section 8 rewritten (8.1 terminal, 8.2 DBeaver).
+- **Setup problem 7 (screenshot, "omg"):** tables exist in ProjectHubDb but Q1 shows columns and no rows; toolbar
+  showed `dbo@master`. Root cause of problems 4-7: the FIRST DBeaver run of 02 failed at `USE ProjectHubDb` (database
+  didn't exist yet) but DBeaver CONTINUED in master and created an empty master.dbo.Projects. Since then Q1 read
+  master.dbo.Projects (empty) and 03 failed "Invalid object name dbo.Tasks" (master has no Tasks). Fix: Edit
+  Connection -> Database: ProjectHubDb (toolbar dbo@ProjectHubDb); drop the stray tables in master via sqlcmd
+  (`USE master; DROP TABLE IF EXISTS dbo.Tasks; DROP TABLE IF EXISTS dbo.Projects;`); run-sql.sh 01-03; Q1 again.
+  Lesson: always check WHICH DATABASE a query runs in (context first: server, database, build — like topic 5's stale
+  build). Lesson section 8.1 updated to point the connection at ProjectHubDb.
