@@ -77,3 +77,30 @@
   Concepts: two-part name dbo.Projects (schema.table) is resolved inside the CURRENT database. A three-part name
   ProjectHubDb.dbo.Projects (database.schema.table) works from anywhere. In C# the current database comes from the
   connection string's `Database=` part.
+
+## CHECK answers (user's words, round 1) and my corrections
+User ran 04 + 05 quickly, skipped DEBUG investigation ("dont want to investigate more").
+1. "table - projects/tasks; row - separate unit of data; column - property; pk - id; fk - projectId (link to another
+   table's item)" -> OK. Sharpen: PK = unique + NOT NULL identity of a row; FK = value must exist as a PK in the other
+   table (Tasks.ProjectId -> Projects.Id), the DB enforces it (C2: error 547).
+2. "tables dont work like this; relation is in projectId column of tasks table" -> correct. Add: a column holds ONE
+   value, not a list; in one-to-many the FK lives on the MANY side.
+3. "nextId++ (so unique id, next one)" -> half. Missing: the DATABASE generates it (start 1, step 1), atomically, so
+   concurrent inserts from several servers never collide (our _nextId++ needed a lock and only works in one process);
+   the value is known only after INSERT (OUTPUT INSERTED.Id / EF fills it back); gaps are normal (C6 got Id 7).
+4. "last DB check; noone can insert it even directly in DB" -> one reason of two. Missing: concurrency across
+   servers -- the Topic 4 lock protects one process only; two servers can both pass the C# check, UNIQUE rejects the
+   second (2627).
+5. User: "answer, be very brief" -> NVARCHAR = Unicode (2 bytes/char, any language, emoji; matches C# string);
+   VARCHAR = 1 byte/char code page (non-Unicode). Use NVARCHAR + N'...' literals for user text. (100) = max chars.
+6. "nothing is = to null; IS NULL" -> correct. Precise: comparison with NULL is UNKNOWN (not false); WHERE keeps only
+   TRUE; even NULL = NULL is unknown. Same trap: `<> N'x'` also skips NULL rows.
+7. "in other case order will be random" -> not random: UNDEFINED -- whatever is cheapest (index, plan); can change
+   with data/indexes/version. Our run returned 3,2,1 (name index).
+8. "without where they delete everything" -> danger correct, habit missing: run SELECT with the same WHERE first,
+   check the rows, then turn it into UPDATE/DELETE (Q9). Topic 9: transactions (BEGIN TRAN ... ROLLBACK).
+9. "doesnt matter for me now" -> skipped. Model answer: 2627 unique -> 409 Conflict; 547 FK on INSERT -> 404 when the
+   parent id is in the route (POST /projects/999/tasks), 400 when it is in the body; 515 NOT NULL -> 400 (and it means
+   our validation missed it). Matters in Topic 10/11: EF throws DbUpdateException wrapping these numbers.
+10. "user-input directly as sql query; params prevent it" -> correct. Add: parameters send SQL text and values
+   separately, so a value is never parsed as SQL; escaping quotes by hand is not a fix; EF always parameterizes (@p0).
