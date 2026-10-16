@@ -21,3 +21,11 @@
   referenced project), the INDEX (SPEED, IX_Tasks_ProjectId). FK = correctness, index = speed. SQL Server does NOT
   auto-index FKs (it does for PK and UNIQUE) -> we created IX_Tasks_ProjectId ourselves. One-liner: "a foreign key is
   a column holding another table's primary key value, plus a rule that the referenced row must exist."
+- **Setup problem (user, DBeaver 26.2.2):** after the driver download, Test Connection -> "Login failed for user 'sa'".
+  The driver and network work (a server answered). Diagnosis given: run sqlcmd INSIDE the container
+  (`docker exec -it projecthub-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'ProjectHub_Dev123!' -C
+  -Q "SELECT @@VERSION"`). Works -> DBeaver side: password typo (Edit Connection F4, retype) or ANOTHER SQL Server on
+  port 1433 (`docker ps`, `lsof -i :1433`). Fails too -> the sa password is set only when the data VOLUME is first
+  created; an older volume keeps an older password -> `docker compose down -v` + `up -d` (no data lost yet).
+  Clue: `docker logs projecthub-sql | grep -i "login failed"`: "Reason: Password did not match" = our container,
+  wrong password; no line = DBeaver reached another server. (Outcome: pending user's answer.)
