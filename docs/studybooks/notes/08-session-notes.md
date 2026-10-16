@@ -45,3 +45,9 @@
   (02 ran) but are empty: 03 didn't run as a whole script, or 02 was re-run after 03 (02 DROPs and recreates EMPTY
   tables). Fix: run 03 with Execute SQL Script (expect 2 result tabs: 3 projects, 7 tasks), then Q1 again. Rule:
   run 02 -> 03 together, never 02 alone. Navigator: right-click Tables -> Refresh.
+- **Setup problem 5 (screenshot):** running 03 -> SQL Error 208 "Invalid object name 'dbo.Tasks'": Projects existed,
+  Tasks didn't -> 02 only half-worked in DBeaver. Likely cause (MY script formatting): blank lines INSIDE the CREATE
+  TABLE statements; DBeaver can treat a blank line as a statement delimiter and send half a statement (sqlcmd, which I
+  tested with, doesn't). Fix: removed blank lines inside statements, added GO between the two CREATE TABLEs, comment in
+  02 explaining why; checked all 5 scripts (no blank lines inside parentheses); re-tested 02 + 03 with sqlcmd.
+  Lesson: test with the tool the user uses, or write scripts that don't depend on tool-specific splitting.
