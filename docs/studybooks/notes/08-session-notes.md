@@ -66,3 +66,14 @@
   (`USE master; DROP TABLE IF EXISTS dbo.Tasks; DROP TABLE IF EXISTS dbo.Projects;`); run-sql.sh 01-03; Q1 again.
   Lesson: always check WHICH DATABASE a query runs in (context first: server, database, build — like topic 5's stale
   build). Lesson section 8.1 updated to point the connection at ProjectHubDb.
+- **Setup problem 8 (2 screenshots, "no result still, but there is data"):** the navigator's Projects -> Data tab
+  showed 3 rows, but Q1 in the 04 editor showed columns and 0 rows; the toolbar still said `dbo@master`. Why the two
+  views disagree: the Data tab reads ProjectHubDb.dbo.Projects (the table you clicked in the tree). The editor runs
+  `SELECT * FROM dbo.Projects` in ITS current database, which was still master. master.dbo.Projects (empty) still
+  existed, because the stray tables hadn't been dropped yet. Otherwise Q1 would have failed loudly (error 208) instead of
+  quietly returning an empty result. Ctrl+Enter ran only Q1, not the `USE ProjectHubDb;` line above it. Editing the
+  connection's default database doesn't change editor tabs that are already open. Fix: toolbar `dbo@master` ->
+  pick ProjectHubDb / dbo (or run the USE line first); `SELECT DB_NAME();` to check; drop the stray master tables.
+  Concepts: two-part name dbo.Projects (schema.table) is resolved inside the CURRENT database. A three-part name
+  ProjectHubDb.dbo.Projects (database.schema.table) works from anywhere. In C# the current database comes from the
+  connection string's `Database=` part.
