@@ -63,3 +63,12 @@
   {"controller":{"singleton":"ef200b0b",...},"reporter":{...}}. Compiler-generated class, read-only properties, no
   writable name (can't be ActionResult<T>), still strongly typed. Lab uses it for brevity (IActionResult); real
   endpoints use record DTOs: named contract, OpenAPI can describe it -> typed frontend client, reusable, testable.
+- **DEBUG step 1 (user):** breakpoint in OperationBase: "3*2 stops for 1st and 2nd request; Rider's debugger (bug)
+  icon shows a counter 2 -> like 2 sessions; that's the problem, otherwise the 2nd request wouldn't have the
+  singleton". Correct diagnosis: TWO debug sessions = two API processes; each process has its own singleton
+  ("one per app" = one per running PROCESS); request 2 hitting the other process creates its singleton again.
+  How both answer one port: `localhost` = IPv4 127.0.0.1 + IPv6 ::1; second instance can bind the other address
+  (Kestrel only warns when it can't bind both). Fix: stop ALL sessions (red stop in each Debug tab, counter gone),
+  start one. Expected with one process: request 1 -> 4 stops (SingletonOperation lazily on first need, ScopedOperation
+  once, TransientOperation twice); request 2 -> 3 stops (no singleton). Lesson: when observation contradicts the
+  model, check the environment first (topic 5 stale build, now two processes).
