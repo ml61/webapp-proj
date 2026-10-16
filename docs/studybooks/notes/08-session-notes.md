@@ -32,3 +32,7 @@
   **Outcome:** it was a password TYPO; Edit Connection (F4) + retyping the password by hand fixed it. Note for the
   book: servers deliberately say only "Login failed" (no reason to the client) so attackers can't tell what was wrong;
   the reason is only in the server log.
+- **Setup problem 2 (screenshot):** running 01 -> "Cannot obtain session: No active connection". The tab said
+  `<none> 01-create-database.sql`: files opened via File > Open File aren't linked to a connection. Fix: click in the
+  editor -> SQL Editor > Set active connection (Cmd+9; or Cmd+3 Find Actions -> "active connection") -> pick
+  "master localhost:1433" -> tab becomes `<master> ...`. Once per file. Lesson section 8 step 1 updated.

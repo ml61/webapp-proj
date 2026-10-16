@@ -210,7 +210,10 @@ If `userInput` is `x'; DROP TABLE Projects; --`, the database runs **your query 
 
 ## 8. Run the scripts in DBeaver
 
-1. **Open a script:** menu **File → Open File…** → choose `sql/01-create-database.sql` in the repo. If DBeaver asks which connection to use, pick yours. You can also check or change it in the editor's toolbar, which shows the **active connection** and **database**.
+1. **Open a script:** menu **File → Open File…** → choose `sql/01-create-database.sql` in the repo.
+   **Link it to your connection** (otherwise running it says *"No active connection"*). The tab title shows `<none> 01-create-database.sql` while it isn't linked:
+   click inside the editor → menu **SQL Editor → Set active connection** (usually **⌘9**; or **⌘3** *Find Actions* → type `active connection`) → pick **master localhost:1433**.
+   The tab title changes to `<master> ...`. Do this once per file; DBeaver remembers it. `<master>` is fine: every script starts with `USE ProjectHubDb;`.
 2. **Two ways to run:**
    - **Execute SQL Script** (toolbar icon: a document with a ▶, usually **⌥X** / Option+X): runs the **whole file**, top to bottom.
    - **Execute SQL Statement** (▶ icon, usually **⌘↩** / Cmd+Enter): runs only the **statement under the cursor**. That's the one for `04` and `05`, one query at a time.
