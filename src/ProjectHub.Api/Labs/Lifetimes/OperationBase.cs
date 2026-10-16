@@ -4,5 +4,12 @@ namespace ProjectHub.Api.Labs.Lifetimes;
 // two places received the same object or two different objects from the DI container.
 public abstract class OperationBase
 {
-    public string Id { get; } = Guid.NewGuid().ToString()[..8];
+    // The constructor runs ONLY when an object is created: put a breakpoint here to count creations.
+    // (A breakpoint on the Id line would also stop on every READ of Id, because that line holds the getter too.)
+    protected OperationBase()
+    {
+        Id = Guid.NewGuid().ToString()[..8];
+    }
+
+    public string Id { get; }
 }

@@ -72,3 +72,13 @@
   start one. Expected with one process: request 1 -> 4 stops (SingletonOperation lazily on first need, ScopedOperation
   once, TransientOperation twice); request 2 -> 3 stops (no singleton). Lesson: when observation contradicts the
   model, check the environment first (topic 5 stale build, now two processes).
+- **CORRECTION of my previous note (user was right):** user saw 6 breakpoint hits in BOTH requests in ONE session,
+  with correct lifetime results. My "two sessions" explanation was WRONG. Real cause: the breakpoint line
+  `public string Id { get; } = Guid.NewGuid()...` holds the GETTER too -> it stops on every READ of Id:
+  3 reads in the controller + 3 in the reporter = 6 per request, regardless of creations. User's hypothesis
+  ("generation is skipped when not needed") close; precise: generation happens only at creation, the extra stops are
+  reads. Proof via Frames: caller LifetimesController.Get / LifetimeReporter.Report (read) vs DI container (creation).
+  Fix: OperationBase now has an explicit protected constructor (`Id = Guid.NewGuid()...` inside) so a breakpoint
+  there counts creations only (expected 4 then 3); lesson step 8.1 updated with a "watch out" about getter lines.
+  Verified lifetimes endpoint still behaves the same. Lesson for me: I blamed the environment before checking my own
+  prediction's assumption (what the breakpoint line actually covers).

@@ -222,10 +222,11 @@ builder.Services.AddSingleton<IProjectService>(serviceProvider =>
 
 ## 8. DEBUG (Rider)
 
-1. **See when objects are created:** put a breakpoint on the line `public string Id { get; } = Guid.NewGuid()...` in `OperationBase.cs`. Debug, and send the lifetimes request:
-   - How many times does it stop for the **first** request, and for which types? (Look at `this` in Variables.)
-   - How many times for the **second** request? Which type is *not* created again, and why?
+1. **See when objects are created:** put a breakpoint **inside the constructor** of `OperationBase` (the line `Id = Guid.NewGuid()...`). Debug, and send the lifetimes request:
+   - How many times does it stop for the **first** request, and for which types? (Look at `this` in Variables.) Expected: 4 (Singleton, Scoped, Transient, Transient).
+   - How many times for the **second** request? Which type is *not* created again, and why? Expected: 3 (no Singleton).
    - In **Frames**, who calls the constructor? (Hint: it's not your code. Framework frames are often collapsed as "external code" by default; expand them, or turn off Just My Code in the debugger settings, and look for `Microsoft.Extensions.DependencyInjection`.)
+   - **Watch out:** a breakpoint on the `public string Id { get; }` line would stop on every **read** of `Id` too (that line is also the property's getter): 6 stops per request, 3 reads in the controller + 3 in the reporter. Use **Frames** to tell a read (caller: `LifetimesController.Get` / `LifetimeReporter.Report`) from a creation (caller: the DI container).
 2. **See the onion:** remove that breakpoint. Put breakpoints in `RequestTimingMiddleware.InvokeAsync` on `await next(context);` **and** on the `logger.LogInformation` line, and one in `ProjectsController.GetAll`. Send `GET /api/projects`. In which order are the three hit? What does that tell you about "before" and "after" `next`?
 3. **Break it 1 (captive dependency):** in `Program.cs`, change `AddScoped<LifetimeReporter>()` to `AddSingleton<LifetimeReporter>()`. Start the app. What happens, and what does the message say? Then undo.
 4. **Break it 2 (fail fast config):** set `"SimulatedLatencyMs": -1` in `appsettings.Development.json`. Start the app. What happens? Then undo.
