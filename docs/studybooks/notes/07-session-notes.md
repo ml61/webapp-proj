@@ -87,3 +87,16 @@
   HOLDS: LifetimeReporter's constructor takes a ScopedOperation; as a singleton it's created once and keeps request 1's
   scoped object forever (real life: a DbContext or the current user leaking across users' requests). Rule: depend only
   on things that live at least as long as yourself.
+- **CHECK round 1 (lesson's 10):** 1 half: "integrating service via constructor; composition not inheritance, easier
+  to maintain" -> precisely: the CONTAINER creates dependencies and passes them into the constructor; the class only
+  declares; benefits: swap implementations (EF, one line), fakes in tests, lifetimes in one place. 2 right
+  ("one per usage" = per injection). 3 right. 4 half: said "singleton relies on scoped OR transient" -> transient in a
+  singleton is allowed (lives as long as the singleton); captive = longer-lived holds shorter-lived (singleton ->
+  scoped) forever; ASP.NET refuses to start in Development. 5 right (+ before/after next, short-circuit, timing first).
+  6 ?? -> headers go out before the body; after `await next` the response may have started ("response has already
+  started"); OnStarting runs at the last moment before headers are sent. 7 half: json -> env json right, missing
+  ENVIRONMENT VARIABLES win (ProjectStore__SimulatedLatencyMs, double underscore). 8 ? -> typed settings class
+  IOptions<T> instead of magic strings; ValidateOnStart = fail fast at startup. 9 ? -> template placeholders become
+  searchable fields; $"" bakes text; template not formatted if level off. 10 ? -> T = category shown per line; levels
+  Trace<Debug<Information<Warning<Error<Critical; Logging:LogLevel minimum per category (Default Information,
+  Microsoft.AspNetCore Warning).
