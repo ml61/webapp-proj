@@ -39,3 +39,12 @@
   transient = per INJECTION (every resolution), not per class: a class asking twice gets two objects; controller and
   reporter asked once each -> 2 ids per request. Interview lines: singleton one per app; scoped one per HTTP request;
   transient new every time it's injected.
+- **Observation/question:** "in C# we can pass a class as a generic, like app.UseMiddleware<RequestTimingMiddleware>()".
+  Answer: possible because C# generics are REIFIED (topic 3): the method uses typeof(T) at runtime -> finds the
+  constructor -> asks DI for the parameters (passes `next` itself) -> creates the object -> calls InvokeAsync per
+  request; we never `new` it. TS generics are erased, so TS libraries pass the CLASS AS A VALUE (Express: create it
+  yourself; NestJS/Inversify: class object as token). C# also has `app.UseMiddleware(typeof(RequestTimingMiddleware))`;
+  generic form preferred. Same pattern: AddSingleton<SingletonOperation>(), AddOptions<ProjectStoreOptions>(),
+  GetRequiredService<ILogger<ProjectService>>(), ILogger<T> (category), IOptions<T>. Bonus: constraints check at
+  compile time: AddSingleton<TService, TImplementation>() where TImplementation : class, TService ->
+  AddSingleton<IProjectService, SampleData>() doesn't compile.
