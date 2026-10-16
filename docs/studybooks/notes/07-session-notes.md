@@ -24,3 +24,12 @@
   small focused classes instead of deep hierarchies. "Independent" is partly right: LOOSELY COUPLED (doesn't know
   which implementation) but still DEPENDS on the part's interface — DI plugs it in. Inheritance stays normal for
   framework base classes and real is-a families. One-sentence interview answer recorded in chat.
+- **Question:** "Is `app.MapControllers()` responsible for all controllers being seen? LifetimesController works but is
+  not in the Controllers folder; the app understands itself what can be queried?" -> YES, two steps, folder irrelevant:
+  (1) `AddControllers()` DISCOVERS controllers by reflection over the compiled assembly: public, non-abstract, and
+  (inherits ControllerBase OR name ends with "Controller" OR has [Controller]/[ApiController]); namespace/folder don't
+  matter (Controllers/ is a human convention). (2) `MapControllers()` reads [Route] + [HttpGet...] and registers
+  ENDPOINTS (URL+verb -> action) that routing matches. Missing MapControllers -> every request 404; missing
+  AddControllers -> MapControllers fails at startup asking for AddControllers. Analogies: NestJS decorators
+  (@Controller/@Get) = attributes; Next.js is the opposite (folder IS the route). See all discovered endpoints at
+  /openapi/v1.json.
