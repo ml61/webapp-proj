@@ -48,3 +48,12 @@
   GetRequiredService<ILogger<ProjectService>>(), ILogger<T> (category), IOptions<T>. Bonus: constraints check at
   compile time: AddSingleton<TService, TImplementation>() where TImplementation : class, TService ->
   AddSingleton<IProjectService, SampleData>() doesn't compile.
+- **User's summary (correct):** "to make DI work we register it (ProjectService factory, AddSingleton/AddScoped/
+  AddTransient...), then use it in a constructor — not just in controllers, in any class". Precision: only in classes
+  THE CONTAINER CREATES. Chain: ASP.NET creates LifetimesController -> needs LifetimeReporter (registered) -> needs the
+  3 operations (registered). If YOU `new` a class, no DI (playground demos `new ProjectService(...)`). Rule: in app code
+  don't `new` services, ask for them. Two registration styles: by type (`AddScoped<LifetimeReporter>()`, container
+  calls the ctor, all params must be registered) vs factory (`sp => new ProjectService(...)`, ctor needs non-services
+  like List/TimeSpan). Everyday form: interface -> class `AddScoped<IProjectService, ProjectService>()` (topic 10).
+  Forgotten registration -> "Unable to resolve service for type 'X' while attempting to activate 'Y'" (checked at
+  startup in Development). Interview one-liner recorded in chat.
