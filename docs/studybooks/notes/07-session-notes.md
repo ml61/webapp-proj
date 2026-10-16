@@ -57,3 +57,9 @@
   like List/TimeSpan). Everyday form: interface -> class `AddScoped<IProjectService, ProjectService>()` (topic 10).
   Forgotten registration -> "Unable to resolve service for type 'X' while attempting to activate 'Y'" (checked at
   startup in Development). Interview one-liner recorded in chat.
+- **Question:** `controller = new { singleton = singleton.Id, scoped = scoped.Id, transient = transient.Id }` — "just
+  creates an object which we return in the HTTP response?" -> YES: an ANONYMOUS TYPE (topic 2), like a JS object
+  literal; nested inside the outer `new { controller = ..., reporter = ... }`; Ok(...) -> System.Text.Json ->
+  {"controller":{"singleton":"ef200b0b",...},"reporter":{...}}. Compiler-generated class, read-only properties, no
+  writable name (can't be ActionResult<T>), still strongly typed. Lab uses it for brevity (IActionResult); real
+  endpoints use record DTOs: named contract, OpenAPI can describe it -> typed frontend client, reusable, testable.
