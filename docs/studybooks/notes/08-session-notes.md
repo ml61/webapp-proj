@@ -51,3 +51,10 @@
   tested with, doesn't). Fix: removed blank lines inside statements, added GO between the two CREATE TABLEs, comment in
   02 explaining why; checked all 5 scripts (no blank lines inside parentheses); re-tested 02 + 03 with sqlcmd.
   Lesson: test with the tool the user uses, or write scripts that don't depend on tool-specific splitting.
+- **Setup problem 6 (screenshot, after the blank-line fix):** DBeaver Execute SQL Script now sent only
+  "CREATE TABLE dbo.Projects" (first line) -> SQL Error 102 Incorrect syntax near 'Projects'. DBeaver's script parser
+  splits multi-line CREATE TABLE statements unpredictably (exact cause unknown, can't run DBeaver in the cloud).
+  Decision: stop guessing. Setup scripts 01-03 run via sqlcmd inside the container: new tooling script
+  scripts/run-sql.sh (docker exec -i ... sqlcmd -C -b -W < file), verified 01-03 run cleanly. DBeaver kept for
+  browsing + 04/05 one statement at a time (select the query text first if DBeaver cuts it; run `USE ProjectHubDb`
+  first or pick ProjectHubDb in the toolbar database selector). Lesson section 8 rewritten (8.1 terminal, 8.2 DBeaver).

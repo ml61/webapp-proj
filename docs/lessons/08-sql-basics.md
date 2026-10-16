@@ -208,29 +208,29 @@ If `userInput` is `x'; DROP TABLE Projects; --`, the database runs **your query 
 | "Login failed for user 'sa'" | wrong password | copy it exactly: `ProjectHub_Dev123!` |
 | certificate / SSL error | self-signed certificate | `trustServerCertificate = true` (step 6) |
 
-## 8. Run the scripts in DBeaver
+## 8. Run the scripts
 
-1. **Open a script:** menu **File → Open File…** → choose `sql/01-create-database.sql` in the repo.
-   **Link it to your connection** (otherwise running it says *"No active connection"*). The tab title shows `<none> 01-create-database.sql` while it isn't linked:
-   click inside the editor → menu **SQL Editor → Set active connection** (usually **⌘9**; or **⌘3** *Find Actions* → type `active connection`) → pick **master localhost:1433**.
-   The tab title changes to `<master> ...`. Do this once per file; DBeaver remembers it. `<master>` is fine: every script starts with `USE ProjectHubDb;`.
-2. **Two ways to run:**
-   - **Execute SQL Script** (the **second** ▶ on the editor's left edge, the one with a small **+**; usually **⌥X** / Option+X): runs the **whole file**, top to bottom. **Use this for 01, 02 and 03.** (With the other button, only the statement under the cursor runs, and script 01 seems to "do nothing".)
-   - **Execute SQL Statement** (▶ icon, usually **⌘↩** / Cmd+Enter): runs only the **statement under the cursor**. That's the one for `04` and `05`, one query at a time.
-   - Results appear in the **bottom panel**, one tab per result.
-3. **Run in this order:**
-   1. `01-create-database.sql`: **whole script**. Result: one row, `ProjectHubDb`.
-   2. `02-create-tables.sql`: **whole script**. Result: `Projects`, `Tasks`.
-   3. `03-seed-data.sql`: **whole script**. Result: 3 projects, 7 tasks.
-   4. `04-queries.sql`: **one statement at a time** (cursor in the query → Cmd+Enter). Read each result and compare it with section 9.
-   5. `05-constraints.sql`: **one statement at a time**. Each one **fails on purpose**. Read the error.
-4. **See the new database in the navigator:** right-click the connection → **Refresh** (F5). Then expand **Databases → ProjectHubDb → Schemas → dbo → Tables**.
-5. **Look around:**
+### 8.1 Setup scripts 01–03: from the terminal (reliable)
+DBeaver's **Execute SQL Script** can split multi-line statements like `CREATE TABLE ... ( ... )` in the wrong places (in our session it sent only `CREATE TABLE dbo.Projects`, and the server answered "Incorrect syntax"). So the setup scripts run through **sqlcmd**, SQL Server's own command-line tool, which is already inside the container. The helper script feeds the files into it.
+
+In Rider's **Terminal** (repo root):
+```bash
+./scripts/run-sql.sh sql/01-create-database.sql sql/02-create-tables.sql sql/03-seed-data.sql
+```
+Expected: `=== sql/01...`, `=== sql/02...` (`Projects`, `Tasks`), `=== sql/03...` with `(3 rows affected)` and `(7 rows affected)`, and **no `Msg ...` error lines**. You can run it again any time: it resets the tables to the sample data.
+
+Then in DBeaver: right-click the connection → **Refresh**, and expand **Databases → ProjectHubDb → Schemas → dbo → Tables**: `Projects` and `Tasks`.
+
+### 8.2 Queries 04 and 05: in DBeaver, one statement at a time
+1. **File → Open File…** → `sql/04-queries.sql`.
+2. **Link it to your connection** if the tab title shows `<none>`: click inside the editor → **SQL Editor → Set active connection** (usually **⌘9**; or **⌘3** *Find Actions* → `active connection`) → pick **master localhost:1433**. The tab changes to `<master> ...`. Once per file. `<master>` is fine, because the file starts with `USE ProjectHubDb;`. **Run that `USE` line first** (cursor on it → top ▶), so the following queries run in `ProjectHubDb`. (The database selector in the top toolbar, which shows `dbo@master`, does the same thing: pick `ProjectHubDb` there.)
+3. Put the cursor inside a query and click the **top ▶ (Execute SQL Statement**, usually **⌘↩**). Only that one statement runs, and its result opens at the bottom.
+   **If DBeaver runs only part of a multi-line query** (the result tab shows a cut-off query, or "Incorrect syntax"): **select the whole query with the mouse first**, then press the same ▶. With a selection, DBeaver sends exactly the selected text.
+4. Do the same with `sql/05-constraints.sql`. Each statement there **fails on purpose**: read the error.
+5. **Look around** in the navigator:
    - double-click the **Projects** table → **Data** tab: the rows, like a spreadsheet
    - **Properties / Columns / Constraints** tabs: the types and rules you created
    - open the **Tasks** table → **ER Diagram** tab: the FK line from `Tasks` to `Projects`, drawn for you
-
-The scripts start with `USE ProjectHubDb;`, so they work even while your connection points at `master`.
 
 **Alternative without DBeaver** (command line, the same tool I used in the cloud):
 ```bash
