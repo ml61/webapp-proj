@@ -29,3 +29,6 @@
   created; an older volume keeps an older password -> `docker compose down -v` + `up -d` (no data lost yet).
   Clue: `docker logs projecthub-sql | grep -i "login failed"`: "Reason: Password did not match" = our container,
   wrong password; no line = DBeaver reached another server. (Outcome: pending user's answer.)
+  **Outcome:** it was a password TYPO; Edit Connection (F4) + retyping the password by hand fixed it. Note for the
+  book: servers deliberately say only "Login failed" (no reason to the client) so attackers can't tell what was wrong;
+  the reason is only in the server log.
