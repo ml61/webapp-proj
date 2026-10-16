@@ -203,3 +203,29 @@ def RIDER_BREAKPOINT_TIP(image_path):
         "**More (Shift+Cmd+F8)**: the full breakpoint dialog (hit count, log message, all breakpoints in one list).",
         "**Done** saves it. A conditional breakpoint gets a small mark on its red dot.",
     ], "Rider: the breakpoint popup") + IMG(image_path, 150, "Your Rider: a conditional breakpoint on the codes.Add line, condition task.Id == 158 (Debug Lab A, bug 2).")
+
+
+def git_show(root, rev, rel):
+    """File content at a git revision, so a study book prints the code as it was when its topic finished."""
+    import subprocess
+    return subprocess.run(["git", "show", f"{rev}:{rel}"], cwd=root, capture_output=True, text=True, check=True).stdout
+
+
+def method(source, signature):
+    """Cut one C# member out of a file: attributes/comments above it, then the signature line to its closing brace.
+    Braces are counted only from the signature line on, so route templates like "{id:int}" are not mistaken for blocks."""
+    lines = source.splitlines()
+    sig = next(i for i, l in enumerate(lines) if signature in l)
+    start = sig
+    while start > 0 and lines[start - 1].strip().startswith(("[", "//")):
+        start -= 1
+    indent = len(lines[sig]) - len(lines[sig].lstrip())
+    out = [l[indent:] if len(l) >= indent else l for l in lines[start:sig]]
+    depth, opened = 0, False
+    for l in lines[sig:]:
+        out.append(l[indent:] if len(l) >= indent else l)
+        depth += l.count("{") - l.count("}")
+        opened = opened or "{" in l
+        if opened and depth == 0:
+            break
+    return "\n".join(out)

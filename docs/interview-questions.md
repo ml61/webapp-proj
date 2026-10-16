@@ -98,3 +98,19 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] Why must `catch (ConflictException)` come before `catch (BusinessRuleException)`?
 - [ ] What does `: ControllerBase` give a controller? Why can you call `Ok()` without `this.`?
 - [ ] Why return enums as strings in JSON?
+
+## Topic 7: DI, middleware, configuration, ILogger
+- [ ] What is dependency injection, and what are two benefits?
+- [ ] What is the DI container, and how does it build a controller with nested dependencies?
+- [ ] Singleton vs Scoped vs Transient (with an example of each)
+- [ ] Which lifetime for a `DbContext`? For an in-memory store?
+- [ ] What is a captive dependency? What does ASP.NET do about it?
+- [ ] Which classes get constructor injection? What happens if you `new` a class yourself?
+- [ ] Composition vs inheritance
+- [ ] What is middleware? Why does the order matter? How is it like Express?
+- [ ] Why set a response header in `OnStarting`?
+- [ ] How does ASP.NET find controllers? (`AddControllers` / `MapControllers`)
+- [ ] Configuration sources and precedence; overriding with an environment variable
+- [ ] What are the Options pattern and `ValidateOnStart` for?
+- [ ] Why message templates instead of string interpolation in log calls?
+- [ ] What does the `T` in `ILogger<T>` do? How do log levels work?
