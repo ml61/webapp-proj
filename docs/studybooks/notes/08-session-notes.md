@@ -41,3 +41,7 @@
   of the second ▶ with a small + (Execute SQL Script, Option+X = whole file). User confirmed the second button fixed it.
   Also: 01 now has the IF ... CREATE DATABASE on one line + a comment to run it as a script; lesson section 8 says
   which button to use.
+- **Setup problem 4 (screenshot):** Q1 `SELECT * FROM dbo.Projects` returned columns but 0 rows -> tables exist
+  (02 ran) but are empty: 03 didn't run as a whole script, or 02 was re-run after 03 (02 DROPs and recreates EMPTY
+  tables). Fix: run 03 with Execute SQL Script (expect 2 result tabs: 3 projects, 7 tasks), then Q1 again. Rule:
+  run 02 -> 03 together, never 02 alone. Navigator: right-click Tables -> Refresh.
