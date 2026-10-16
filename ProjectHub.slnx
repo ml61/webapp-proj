@@ -5,6 +5,13 @@
     <File Path="playground/04-async.cs" />
     <File Path="playground/05-debug-lab.cs" />
   </Folder>
+  <Folder Name="/sql/">
+    <File Path="sql/01-create-database.sql" />
+    <File Path="sql/02-create-tables.sql" />
+    <File Path="sql/03-seed-data.sql" />
+    <File Path="sql/04-queries.sql" />
+    <File Path="sql/05-constraints.sql" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/ProjectHub.Api/ProjectHub.Api.csproj" />
   </Folder>
