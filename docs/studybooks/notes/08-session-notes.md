@@ -36,3 +36,8 @@
   `<none> 01-create-database.sql`: files opened via File > Open File aren't linked to a connection. Fix: click in the
   editor -> SQL Editor > Set active connection (Cmd+9; or Cmd+3 Find Actions -> "active connection") -> pick
   "master localhost:1433" -> tab becomes `<master> ...`. Once per file. Lesson section 8 step 1 updated.
+- **Setup problem 3 (screenshot):** "script 1 did nothing, so script 2 failed" (SQL Error 911: Database 'ProjectHubDb'
+  does not exist). Cause: ran 01 with the top ▶ (Execute SQL Statement = only the statement under the cursor) instead
+  of the second ▶ with a small + (Execute SQL Script, Option+X = whole file). User confirmed the second button fixed it.
+  Also: 01 now has the IF ... CREATE DATABASE on one line + a comment to run it as a script; lesson section 8 says
+  which button to use.

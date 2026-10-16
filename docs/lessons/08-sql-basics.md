@@ -215,7 +215,7 @@ If `userInput` is `x'; DROP TABLE Projects; --`, the database runs **your query 
    click inside the editor → menu **SQL Editor → Set active connection** (usually **⌘9**; or **⌘3** *Find Actions* → type `active connection`) → pick **master localhost:1433**.
    The tab title changes to `<master> ...`. Do this once per file; DBeaver remembers it. `<master>` is fine: every script starts with `USE ProjectHubDb;`.
 2. **Two ways to run:**
-   - **Execute SQL Script** (toolbar icon: a document with a ▶, usually **⌥X** / Option+X): runs the **whole file**, top to bottom.
+   - **Execute SQL Script** (the **second** ▶ on the editor's left edge, the one with a small **+**; usually **⌥X** / Option+X): runs the **whole file**, top to bottom. **Use this for 01, 02 and 03.** (With the other button, only the statement under the cursor runs, and script 01 seems to "do nothing".)
    - **Execute SQL Statement** (▶ icon, usually **⌘↩** / Cmd+Enter): runs only the **statement under the cursor**. That's the one for `04` and `05`, one query at a time.
    - Results appear in the **bottom panel**, one tab per result.
 3. **Run in this order:**
