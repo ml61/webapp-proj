@@ -1,0 +1,61 @@
+# Blocking experiment (cloud, two sqlcmd sessions). Session A holds an UPDATE lock on project 1 for 10 s, then rolls back.
+# ---- session A
+USE ProjectHubDb;
+SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = N'ProjectHubDb';
+BEGIN TRANSACTION;
+UPDATE dbo.Projects SET Name = N'Website redesign (editing)' WHERE Id = 1;
+SELECT @@SPID AS SessionA;
+WAITFOR DELAY '00:00:10';
+ROLLBACK TRANSACTION;
+GO
+# ---- session B (started 2 s later)
+USE ProjectHubDb;
+SELECT @@SPID AS SessionB;
+SELECT session_id, blocking_session_id, wait_type, command FROM sys.dm_exec_requests WHERE blocking_session_id <> 0;
+GO
+SET LOCK_TIMEOUT 3000;
+SELECT Id, Name FROM dbo.Projects WHERE Id = 1;
+GO
+SELECT Id, Name FROM dbo.Projects WHERE Id = 2;
+GO
+# ---- session C (1 s after B): who is blocked by whom
+SELECT r.session_id, r.blocking_session_id, r.wait_type, r.wait_time AS wait_ms, t.text
+FROM sys.dm_exec_requests AS r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t
+WHERE r.blocking_session_id <> 0;
+GO
+# ==== output A
+Changed database context to 'ProjectHubDb'.
+is_read_committed_snapshot_on
+-----------------------------
+0
+
+(1 rows affected)
+
+(1 rows affected)
+SessionA
+--------
+77
+
+(1 rows affected)
+# ==== output B
+Changed database context to 'ProjectHubDb'.
+SessionB
+--------
+78
+
+(1 rows affected)
+session_id blocking_session_id wait_type command
+---------- ------------------- --------- -------
+
+(0 rows affected)
+Msg 1222, Level 16, State 51, Server 7a3b197acd25, Line 2
+Lock request time out period exceeded.
+Id Name
+-- ----
+2 Mobile app
+
+(1 rows affected)
+# ==== output C
+session_id blocking_session_id wait_type wait_ms text
+---------- ------------------- --------- ------- ----
+78 77 LCK_M_S 988 (@1 tinyint)SELECT [Id],[Name] FROM [dbo].[Projects] WHERE [Id]=@1

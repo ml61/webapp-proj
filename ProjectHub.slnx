@@ -11,6 +11,11 @@
     <File Path="sql/03-seed-data.sql" />
     <File Path="sql/04-queries.sql" />
     <File Path="sql/05-constraints.sql" />
+    <File Path="sql/06-add-due-date.sql" />
+    <File Path="sql/07-joins.sql" />
+    <File Path="sql/08-group-by.sql" />
+    <File Path="sql/09-subqueries-exists.sql" />
+    <File Path="sql/10-transactions.sql" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/ProjectHub.Api/ProjectHub.Api.csproj" />
