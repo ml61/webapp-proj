@@ -1,0 +1,107 @@
+# Phase 1 (first run)
+### GET  
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+X-Response-Time-Ms: 109
+
+[{"id":1,"name":"Website redesign","description":"New marketing site","createdAt":"2026-09-01T09:00:00Z","taskCount":4,"doneCount":2},{"id":2,"name":"Mobile app","description":null,"createdAt":"2026-09-05T09:00:00Z","taskCount":3,"doneCount":0},{"id":3,"name":"Internal tools","description":"Admin dashboards","createdAt":"2026-09-09T09:00:00Z","taskCount":0,"doneCount":0}]
+
+
+### GET /1 
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+X-Response-Time-Ms: 236
+
+{"id":1,"name":"Website redesign","description":"New marketing site","createdAt":"2026-09-01T09:00:00Z","tasks":[{"id":1,"projectId":1,"title":"Design mockups","status":"Done","createdAt":"2026-09-02T09:00:00Z","dueDate":"2026-09-10T17:00:00Z"},{"id":2,"projectId":1,"title":"Build landing page","status":"InProgress","createdAt":"2026-09-04T09:00:00Z","dueDate":"2026-10-01T17:00:00Z"},{"id":3,"projectId":1,"title":"SEO audit","status":"Todo","createdAt":"2026-09-06T09:00:00Z","dueDate":"2027-01-15T17:00:00Z"},{"id":4,"projectId":1,"title":"Write copy","status":"Done","createdAt":"2026-09-03T09:00:00Z","dueDate":"2026-09-05T17:00:00Z"}]}
+
+
+### POST  {"name":"Docs portal","description":"Public API docs"}
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Location: http://localhost:5064/api/projects/4
+X-Response-Time-Ms: 333
+
+{"id":4,"name":"Docs portal","description":"Public API docs","createdAt":"2026-10-17T17:53:32.9222843Z","tasks":[]}
+
+
+### POST  {"name":"WEBSITE REDESIGN"}
+HTTP/1.1 409 Conflict
+Content-Type: application/problem+json; charset=utf-8
+X-Response-Time-Ms: 34
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.10","title":"Conflict","status":409,"detail":"A project named 'WEBSITE REDESIGN' already exists.","traceId":"00-29b10cd4da3ae1ed46a07b7b3436b9d4-4da8899c96e71588-00"}
+
+
+### PUT /4 {"name":"Docs portal v2","description":"Renamed"}
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+X-Response-Time-Ms: 44
+
+{"id":4,"name":"Docs portal v2","description":"Renamed","createdAt":"2026-10-17T17:53:32.9222843Z","tasks":[]}
+
+
+### PUT /4 {"name":"Mobile app"}
+HTTP/1.1 409 Conflict
+Content-Type: application/problem+json; charset=utf-8
+X-Response-Time-Ms: 6
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.10","title":"Conflict","status":409,"detail":"A project named 'Mobile app' already exists.","traceId":"00-5db4164fe98453adc9f9b7e6a884d60d-3b5229bb295211d0-00"}
+
+
+### POST /4/tasks {"title":"Write getting started","dueDate":"2026-11-01T17:00:00Z"}
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Location: http://localhost:5064/api/projects/4
+X-Response-Time-Ms: 56
+
+{"id":8,"projectId":4,"title":"Write getting started","status":"Todo","createdAt":"2026-10-17T17:53:33.3528624Z","dueDate":"2026-11-01T17:00:00Z"}
+
+
+### POST /999/tasks {"title":"Ghost task"}
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+X-Response-Time-Ms: 4
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"Project with id '999' was not found.","traceId":"00-f808bd8cde55db9a0a469cae01d15208-f9761d753611783c-00"}
+
+
+### POST  {"name":"Long","description":"xxxx... (1001 x)"}
+HTTP/1.1 400 Bad Request
+Content-Type: application/problem+json; charset=utf-8
+X-Response-Time-Ms: 1
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"Bad Request","status":400,"detail":"Project description must be at most 1000 characters.","traceId":"00-989c7aaf04de781ae9d6a3d2018bc306-a837cef0a40b5ba1-00"}
+
+
+# Phase 2 (after stopping and starting the API again)
+### GET /4 
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+X-Response-Time-Ms: 214
+
+{"id":4,"name":"Docs portal v2","description":"Renamed","createdAt":"2026-10-17T17:53:32.9222843Z","tasks":[{"id":8,"projectId":4,"title":"Write getting started","status":"Todo","createdAt":"2026-10-17T17:53:33.3528624Z","dueDate":"2026-11-01T17:00:00Z"}]}
+
+
+### DELETE /4 
+HTTP/1.1 204 No Content
+X-Response-Time-Ms: 175
+
+
+
+### DELETE /4 
+HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+X-Response-Time-Ms: 31
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"Project with id '4' was not found.","traceId":"00-4b5e524a81fbc1d784d637523bc1b979-84ef67b91eeb22b1-00"}
+
+
+### POST  {"name":"Docs portal"}
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Location: http://localhost:5064/api/projects/5
+X-Response-Time-Ms: 188
+
+{"id":5,"name":"Docs portal","description":null,"createdAt":"2026-10-17T17:53:40.6444277Z","tasks":[]}
+
+

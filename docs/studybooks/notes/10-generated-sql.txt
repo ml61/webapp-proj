@@ -1,0 +1,152 @@
+      Executed DbCommand (50ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM [Projects] AS [p]
+      LEFT JOIN [Tasks] AS [t] ON [p].[Id] = [t].[ProjectId]
+      ORDER BY [p].[Id]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM [Projects] AS [p]
+      LEFT JOIN [Tasks] AS [t] ON [p].[Id] = [t].[ProjectId]
+      ORDER BY [p].[Id]
+      Executed DbCommand (24ms) [Parameters=[@id='1'], CommandType='Text', CommandTimeout='30']
+      SELECT [p0].[Id], [p0].[CreatedAt], [p0].[Description], [p0].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM (
+          SELECT TOP(2) [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name]
+          FROM [Projects] AS [p]
+          WHERE [p].[Id] = @id
+      ) AS [p0]
+      LEFT JOIN [Tasks] AS [t] ON [p0].[Id] = [t].[ProjectId]
+      ORDER BY [p0].[Id], [t].[Id]
+      Executed DbCommand (4ms) [Parameters=[@name='Docs portal' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Name] = @name) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='2026-10-17T17:53:32.9222843Z', @p1='Public API docs' (Size = 1000), @p2='Docs portal' (Nullable = false) (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Projects] ([CreatedAt], [Description], [Name])
+      OUTPUT INSERTED.[Id]
+      VALUES (@p0, @p1, @p2);
+      Executed DbCommand (2ms) [Parameters=[@name='WEBSITE REDESIGN' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Name] = @name) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+      Executed DbCommand (2ms) [Parameters=[@id='4'], CommandType='Text', CommandTimeout='30']
+      SELECT [p0].[Id], [p0].[CreatedAt], [p0].[Description], [p0].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM (
+          SELECT TOP(2) [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name]
+          FROM [Projects] AS [p]
+          WHERE [p].[Id] = @id
+      ) AS [p0]
+      LEFT JOIN [Tasks] AS [t] ON [p0].[Id] = [t].[ProjectId]
+      ORDER BY [p0].[Id], [t].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@exceptProjectId='4' (Nullable = true), @name='Docs portal v2' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Id] <> @exceptProjectId AND [p].[Name] = @name) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p2='4', @p0='Renamed' (Size = 1000), @p1='Docs portal v2' (Nullable = false) (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [Projects] SET [Description] = @p0, [Name] = @p1
+      OUTPUT 1
+      WHERE [Id] = @p2;
+      Executed DbCommand (2ms) [Parameters=[@id='4'], CommandType='Text', CommandTimeout='30']
+      SELECT [p0].[Id], [p0].[CreatedAt], [p0].[Description], [p0].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM (
+          SELECT TOP(2) [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name]
+          FROM [Projects] AS [p]
+          WHERE [p].[Id] = @id
+      ) AS [p0]
+      LEFT JOIN [Tasks] AS [t] ON [p0].[Id] = [t].[ProjectId]
+      ORDER BY [p0].[Id], [t].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@exceptProjectId='4' (Nullable = true), @name='Mobile app' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Id] <> @exceptProjectId AND [p].[Name] = @name) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+      Executed DbCommand (4ms) [Parameters=[@projectId='4'], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Id] = @projectId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p0='2026-10-17T17:53:33.3528624Z', @p1='2026-11-01T17:00:00.0000000Z' (Nullable = true), @p2='4', @p3='0', @p4='Write getting started' (Nullable = false) (Size = 200)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Tasks] ([CreatedAt], [DueDate], [ProjectId], [Status], [Title])
+      OUTPUT INSERTED.[Id]
+      VALUES (@p0, @p1, @p2, @p3, @p4);
+      Executed DbCommand (2ms) [Parameters=[@projectId='999'], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Id] = @projectId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+      Executed DbCommand (51ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM [Projects] AS [p]
+      LEFT JOIN [Tasks] AS [t] ON [p].[Id] = [t].[ProjectId]
+      ORDER BY [p].[Id]
+      Executed DbCommand (26ms) [Parameters=[@id='4'], CommandType='Text', CommandTimeout='30']
+      SELECT [p0].[Id], [p0].[CreatedAt], [p0].[Description], [p0].[Name], [t].[Id], [t].[CreatedAt], [t].[DueDate], [t].[ProjectId], [t].[Status], [t].[Title]
+      FROM (
+          SELECT TOP(2) [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name]
+          FROM [Projects] AS [p]
+          WHERE [p].[Id] = @id
+      ) AS [p0]
+      LEFT JOIN [Tasks] AS [t] ON [p0].[Id] = [t].[ProjectId]
+      ORDER BY [p0].[Id], [t].[Id]
+      Executed DbCommand (5ms) [Parameters=[@p='4'], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name]
+      FROM [Projects] AS [p]
+      WHERE [p].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@p0='4'], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      DELETE FROM [Projects]
+      OUTPUT 1
+      WHERE [Id] = @p0;
+      Executed DbCommand (2ms) [Parameters=[@p='4'], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [p].[Id], [p].[CreatedAt], [p].[Description], [p].[Name]
+      FROM [Projects] AS [p]
+      WHERE [p].[Id] = @p
+      Executed DbCommand (2ms) [Parameters=[@name='Docs portal' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Projects] AS [p]
+              WHERE [p].[Name] = @name) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='2026-10-17T17:53:40.6444277Z', @p1=NULL (Size = 1000), @p2='Docs portal' (Nullable = false) (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Projects] ([CreatedAt], [Description], [Name])
+      OUTPUT INSERTED.[Id]
+      VALUES (@p0, @p1, @p2);

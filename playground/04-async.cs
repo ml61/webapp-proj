@@ -10,7 +10,7 @@ using ProjectHub.Api.Exceptions;
 using ProjectHub.Api.Services;
 
 // Every "database call" in this service waits 300 ms, like a real network + SQL round-trip.
-IProjectService service = new ProjectService(SampleData.CreateProjects(), TimeSpan.FromMilliseconds(300));
+IProjectService service = new InMemoryProjectService(SampleData.CreateProjects(), TimeSpan.FromMilliseconds(300));
 
 // ---------------------------------------------------------------------------
 Section("1. Task<T> is a Promise<T>; await unwraps it");

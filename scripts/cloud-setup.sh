@@ -19,4 +19,5 @@ fi
 nohup docker compose up -d >/tmp/sqlserver-up.log 2>&1 &
 
 dotnet restore >/dev/null 2>&1 || true
+dotnet tool restore >/dev/null 2>&1 || true   # dotnet-ef (Topic 10)
 echo "cloud-setup: dotnet $(dotnet --version 2>/dev/null || echo missing); SQL Server starting (see /tmp/sqlserver-up.log)"

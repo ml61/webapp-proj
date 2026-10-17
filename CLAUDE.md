@@ -40,6 +40,10 @@ See `docs/progress.md` (the "Current topic" line at the top is the source of tru
 - Playground demos: `dotnet run --no-cache playground/NN-name.cs` (`--no-cache` matters: without it a cached build
   can run OLD code after `src/` changed, because the playground file itself did not change)
 - SQL Server: `docker compose up -d` -> `localhost,1433`, user `sa`, password from `docker-compose.yml` (dev only)
+- SQL scripts (topics 8-9, database `ProjectHubDb`): `./scripts/run-sql.sh sql/NN-name.sql`
+- EF Core (topic 10+, database `ProjectHub`, owned by migrations): `dotnet tool restore` once, then
+  `dotnet ef migrations add <Name> --project src/ProjectHub.Api --output-dir Data/Migrations`,
+  `dotnet ef database update --project src/ProjectHub.Api`, reset: `dotnet ef database drop --force --project src/ProjectHub.Api`
 
 ## Stack
 .NET 10 / C# 14, ASP.NET Core controllers, EF Core + SQL Server 2025, xUnit, React + TypeScript (Vite) later.

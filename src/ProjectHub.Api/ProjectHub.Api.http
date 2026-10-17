@@ -1,5 +1,9 @@
 # ProjectHub API requests. In Rider: start the API (Run or Debug, "http" profile), then click the green
 # arrow next to any request. Each "###" starts a new request. Expected status codes are in the titles.
+# Since Topic 10 the data lives in SQL Server: it SURVIVES restarts, and new ids are not predictable
+# (identity gaps, Topic 8). So the create request saves the new id in a variable ({{projectId}}) for the next ones.
+# Run the requests from "create" to "delete again" in order. Reset everything: dotnet ef database drop --force,
+# then dotnet ef database update (see lesson 10).
 
 @host = http://localhost:5064
 
@@ -15,7 +19,7 @@ GET {{host}}/api/projects/999
 ### 404 with an empty body: "abc" doesn't match the {id:int} route constraint, so no action is found
 GET {{host}}/api/projects/abc
 
-### 201 Created + Location header: create a project
+### 201 Created + Location header: create a project (saves its id as {{projectId}})
 POST {{host}}/api/projects
 Content-Type: application/json
 
@@ -23,6 +27,11 @@ Content-Type: application/json
   "name": "Docs portal",
   "description": "Public API docs"
 }
+
+> {%
+    // Response handler (JavaScript, runs in Rider after the response): remember the generated id.
+    client.global.set("projectId", response.body.id);
+%}
 
 ### 409 Conflict: the name is taken (case-insensitive)
 POST {{host}}/api/projects
@@ -48,8 +57,8 @@ Content-Type: application/json
   "description": "no name"
 }
 
-### 200: update project 4 (create it first with the POST above)
-PUT {{host}}/api/projects/4
+### 200: update the project created above
+PUT {{host}}/api/projects/{{projectId}}
 Content-Type: application/json
 
 {
@@ -57,8 +66,8 @@ Content-Type: application/json
   "description": "Renamed"
 }
 
-### 409: project 4 may not take ANOTHER project's name
-PUT {{host}}/api/projects/4
+### 409: it may not take ANOTHER project's name
+PUT {{host}}/api/projects/{{projectId}}
 Content-Type: application/json
 
 {
@@ -73,12 +82,22 @@ Content-Type: application/json
   "name": "Ghost"
 }
 
-### 201 Created: add a task to project 4
-POST {{host}}/api/projects/4/tasks
+### 201 Created: add a task to it, with an optional due date (UTC: the "Z" at the end)
+POST {{host}}/api/projects/{{projectId}}/tasks
 Content-Type: application/json
 
 {
-  "title": "Write getting started"
+  "title": "Write getting started",
+  "dueDate": "2026-11-01T17:00:00Z"
+}
+
+### 400 (Topic 10): description longer than 1000 characters (the column is NVARCHAR(1000))
+POST {{host}}/api/projects
+Content-Type: application/json
+
+{
+  "name": "Too long",
+  "description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }
 
 ### 404: add a task to a project that doesn't exist
@@ -89,11 +108,11 @@ Content-Type: application/json
   "title": "Ghost task"
 }
 
-### 204 No Content: delete project 4
-DELETE {{host}}/api/projects/4
+### 204 No Content: delete it (its tasks go too: ON DELETE CASCADE)
+DELETE {{host}}/api/projects/{{projectId}}
 
 ### 404: delete it again
-DELETE {{host}}/api/projects/4
+DELETE {{host}}/api/projects/{{projectId}}
 
 ### Topic 7 lab: DI lifetimes. Send it TWICE and compare the ids (singleton / scoped / transient)
 GET {{host}}/api/labs/lifetimes

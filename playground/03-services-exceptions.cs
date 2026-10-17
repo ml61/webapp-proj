@@ -12,8 +12,8 @@ using ProjectHub.Api.Services;
 // ---------------------------------------------------------------------------
 Section("1. Program against the INTERFACE, not the class");
 // The variable type is the interface; the object is one concrete implementation.
-// TS: const service: IProjectService = new ProjectService(data);
-IProjectService service = new ProjectService(SampleData.CreateProjects());
+// TS: const service: IProjectService = new InMemoryProjectService(data);
+IProjectService service = new InMemoryProjectService(SampleData.CreateProjects());
 
 Console.WriteLine($"GetAll: {(await service.GetAllAsync()).Count} projects");
 Console.WriteLine($"GetById(1):  {(await service.GetByIdAsync(1))?.Name}");
@@ -96,7 +96,7 @@ foreach (var useThrowEx in new[] { false, true })
 Section("7. Polymorphism: a different implementation behind the same interface");
 // LoggingProjectService wraps ANY IProjectService and adds logging (the Decorator pattern).
 // The calling code below does not change at all: it only knows IProjectService.
-IProjectService logged = new LoggingProjectService(new ProjectService(SampleData.CreateProjects()));
+IProjectService logged = new LoggingProjectService(new InMemoryProjectService(SampleData.CreateProjects()));
 await PrintProjectCount(logged);
 await TryCreate(logged, "Mobile app");
 
@@ -248,9 +248,10 @@ class LoggingProjectService(IProjectService inner) : IProjectService
         return inner.DeleteAsync(id, cancellationToken);
     }
 
-    public Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default)
+    // (dueDate added in Topic 10. Every implementation of an interface must follow its changes: a compile error until it does.)
+    public Task<TaskItem> AddTaskAsync(int projectId, string title, DateTime? dueDate = null, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"  [log] AddTask({projectId}, '{title}')");
-        return inner.AddTaskAsync(projectId, title, cancellationToken);
+        return inner.AddTaskAsync(projectId, title, dueDate, cancellationToken);
     }
 }

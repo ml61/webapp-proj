@@ -1,185 +1,136 @@
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using ProjectHub.Api.Data;
 using ProjectHub.Api.Entities;
 using ProjectHub.Api.Exceptions;
 
 namespace ProjectHub.Api.Services;
 
-// In-memory implementation. Topic 10 replaces the List with EF Core + SQL Server.
-// It pretends to be a database: each call can wait for a simulated "round-trip" (simulatedLatency).
-public class ProjectService : IProjectService
+// The real implementation (Topic 10): EF Core + SQL Server.
+// Scoped, like the DbContext it uses: one instance per HTTP request. No lock and no id counters any more:
+// the database generates ids (IDENTITY) and handles concurrent requests (transactions, UNIQUE index).
+public class ProjectService(ProjectHubDbContext db, ILogger<ProjectService> logger) : IProjectService
 {
-    public const int MaxNameLength = 100;
-
-    private readonly List<Project> _projects;
-    private readonly TimeSpan _simulatedLatency;
-    private readonly ILogger<ProjectService> _logger;
-
-    // Async callers can run at the same time on different threads, so every access to the
-    // shared list and id counters happens inside lock (_gate): one thread at a time.
-    private readonly Lock _gate = new();
-    private int _nextProjectId;
-    private int _nextTaskId;
-
-    // logger is optional so demos and tests can create the service without logging (NullLogger writes nothing).
-    public ProjectService(
-        IEnumerable<Project> initialProjects,
-        TimeSpan simulatedLatency = default,
-        ILogger<ProjectService>? logger = null)
-    {
-        _projects = initialProjects.ToList();
-        _simulatedLatency = simulatedLatency;
-        _logger = logger ?? NullLogger<ProjectService>.Instance;
-
-        // DefaultIfEmpty(0): Max() on an empty sequence would throw (Topic 2 gotcha).
-        _nextProjectId = _projects.Select(p => p.Id).DefaultIfEmpty(0).Max() + 1;
-        _nextTaskId = _projects.SelectMany(p => p.Tasks).Select(t => t.Id).DefaultIfEmpty(0).Max() + 1;
-    }
-
     public async Task<IReadOnlyList<Project>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        await SimulateDatabaseCallAsync(cancellationToken);
-
-        lock (_gate)
-        {
-            // A snapshot copy: safe to loop over even if another caller adds a project meanwhile.
-            return _projects.ToList().AsReadOnly();
-        }
+        // Include = also load each project's tasks (a JOIN, Topic 9), because the summary shows task counts.
+        // Loading ALL tasks just to count them is wasteful: Topic 11 replaces this with a projection.
+        // OrderBy: a database has no "natural" order (Topic 8), and the API should return a stable one.
+        return await db.Projects
+            .Include(p => p.Tasks)
+            .OrderBy(p => p.Id)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        await SimulateDatabaseCallAsync(cancellationToken);
-
-        lock (_gate)
-        {
-            return FindById(id);
-        }
+        // Ordering inside Include: the tasks come back sorted by Id, not in whatever order the database likes.
+        return await db.Projects
+            .Include(p => p.Tasks.OrderBy(t => t.Id))
+            .SingleOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
     public async Task<Project> CreateAsync(string name, string? description, CancellationToken cancellationToken = default)
     {
-        // Validate the input first: no point "calling the database" with a bad request.
-        var trimmedName = ValidateName(name);
+        var trimmedName = ProjectRules.ValidateName(name);
+        ProjectRules.ValidateDescription(description);
 
-        await SimulateDatabaseCallAsync(cancellationToken);
+        await EnsureNameIsFreeAsync(trimmedName, exceptProjectId: null, cancellationToken);
 
-        Project project;
-        lock (_gate)
-        {
-            // Check AND add inside the same lock: otherwise two concurrent calls with the same name
-            // could both pass the check before either one adds (a "check-then-act" race).
-            EnsureNameIsFree(trimmedName, exceptProjectId: null);
+        var project = new Project { Name = trimmedName, Description = description };
 
-            project = new Project
-            {
-                Id = _nextProjectId++,
-                Name = trimmedName,
-                Description = description,
-            };
-            _projects.Add(project);
-        }
+        // Add = "track this as NEW". Nothing is sent yet. SaveChangesAsync sends the INSERT
+        // and copies the generated Id (IDENTITY) back into project.Id.
+        db.Projects.Add(project);
+        await SaveChangesAsync(trimmedName, cancellationToken);
 
-        // Log AFTER the lock: other requests never wait for logging.
-        // A message TEMPLATE with named placeholders (not $"..."): ProjectId and ProjectName become searchable fields.
-        _logger.LogInformation("Created project {ProjectId} {ProjectName}", project.Id, project.Name);
+        logger.LogInformation("Created project {ProjectId} {ProjectName}", project.Id, project.Name);
         return project;
     }
 
     public async Task<Project> UpdateAsync(int id, string name, string? description, CancellationToken cancellationToken = default)
     {
-        var trimmedName = ValidateName(name);
+        var trimmedName = ProjectRules.ValidateName(name);
+        ProjectRules.ValidateDescription(description);
 
-        await SimulateDatabaseCallAsync(cancellationToken);
+        // A loaded entity is TRACKED: EF remembers its original values.
+        // The tasks are loaded too because the response includes them.
+        var project = await db.Projects
+                          .Include(p => p.Tasks.OrderBy(t => t.Id))
+                          .SingleOrDefaultAsync(p => p.Id == id, cancellationToken)
+                      ?? throw new NotFoundException(nameof(Project), id);
 
-        Project project;
-        lock (_gate)
-        {
-            project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
+        // The project may keep its own name; it may not take a name used by ANOTHER project.
+        await EnsureNameIsFreeAsync(trimmedName, exceptProjectId: id, cancellationToken);
 
-            // The project may keep its own name; it may not take a name used by ANOTHER project.
-            EnsureNameIsFree(trimmedName, exceptProjectId: id);
+        // Just change the properties. No "Update()" call needed: SaveChangesAsync compares with the original
+        // values and sends an UPDATE for the changed columns only.
+        project.Name = trimmedName;
+        project.Description = description;
+        await SaveChangesAsync(trimmedName, cancellationToken);
 
-            project.Name = trimmedName;
-            project.Description = description;
-        }
-
-        _logger.LogInformation("Updated project {ProjectId} {ProjectName}", project.Id, project.Name);
+        logger.LogInformation("Updated project {ProjectId} {ProjectName}", project.Id, project.Name);
         return project;
     }
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        await SimulateDatabaseCallAsync(cancellationToken);
+        // FindAsync looks up by primary key (and first checks the entities this DbContext already tracks).
+        var project = await db.Projects.FindAsync([id], cancellationToken)
+                      ?? throw new NotFoundException(nameof(Project), id);
 
-        lock (_gate)
-        {
-            var project = FindById(id) ?? throw new NotFoundException(nameof(Project), id);
-            _projects.Remove(project);
-        }
+        // Remove = "track this as DELETED". SaveChangesAsync sends the DELETE.
+        // The project's tasks are deleted by the database itself: ON DELETE CASCADE (see ProjectHubDbContext).
+        db.Projects.Remove(project);
+        await db.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Deleted project {ProjectId}", id);
+        logger.LogInformation("Deleted project {ProjectId}", id);
     }
 
-    public async Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default)
+    public async Task<TaskItem> AddTaskAsync(int projectId, string title, DateTime? dueDate = null, CancellationToken cancellationToken = default)
     {
-        var trimmedTitle = title.Trim();
-        if (trimmedTitle.Length == 0)
+        var trimmedTitle = ProjectRules.ValidateTitle(title);
+
+        // Check first, so a missing project is a clear 404 (otherwise the INSERT would fail with FK error 547).
+        if (!await db.Projects.AnyAsync(p => p.Id == projectId, cancellationToken))
         {
-            throw new BusinessRuleException("Task title is required.");
+            throw new NotFoundException(nameof(Project), projectId);
         }
 
-        await SimulateDatabaseCallAsync(cancellationToken);
+        var task = new TaskItem { ProjectId = projectId, Title = trimmedTitle, DueDate = dueDate };
+        db.Tasks.Add(task);
+        await db.SaveChangesAsync(cancellationToken);
 
-        TaskItem task;
-        lock (_gate)
-        {
-            var project = FindById(projectId) ?? throw new NotFoundException(nameof(Project), projectId);
-
-            task = new TaskItem
-            {
-                Id = _nextTaskId++,
-                ProjectId = project.Id,
-                Title = trimmedTitle,
-            };
-            project.Tasks.Add(task);
-        }
-
-        _logger.LogInformation("Added task {TaskId} to project {ProjectId}", task.Id, task.ProjectId);
+        logger.LogInformation("Added task {TaskId} to project {ProjectId}", task.Id, task.ProjectId);
         return task;
     }
 
-    // Call only while holding _gate.
-    private Project? FindById(int id) => _projects.SingleOrDefault(p => p.Id == id);
-
-    // Call only while holding _gate. The business rule: project names are unique, ignoring case.
-    private void EnsureNameIsFree(string name, int? exceptProjectId)
+    // The business rule: project names are unique, ignoring case.
+    // "p.Name == name" becomes SQL "Name = @name", and SQL Server's case-insensitive collation does the
+    // ignore-case part. (string.Equals(..., StringComparison.OrdinalIgnoreCase) can't be translated to SQL.)
+    private async Task EnsureNameIsFreeAsync(string name, int? exceptProjectId, CancellationToken cancellationToken)
     {
-        if (_projects.Any(p => p.Id != exceptProjectId
-                               && string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)))
+        var taken = await db.Projects.AnyAsync(
+            p => p.Id != exceptProjectId && p.Name == name, cancellationToken);
+
+        if (taken)
         {
             throw new ConflictException($"A project named '{name}' already exists.");
         }
     }
 
-    private static string ValidateName(string name)
+    // The check above and the INSERT/UPDATE are two separate round trips. Two requests can both pass the check
+    // (the Topic 4 race, now across servers). The UNIQUE index stops the second one with SQL error 2601;
+    // we turn that into the same ConflictException, so the client still gets a 409, not a 500.
+    private async Task SaveChangesAsync(string projectName, CancellationToken cancellationToken)
     {
-        var trimmedName = name.Trim();
-
-        if (trimmedName.Length == 0)
+        try
         {
-            throw new BusinessRuleException("Project name is required.");
+            await db.SaveChangesAsync(cancellationToken);
         }
-
-        if (trimmedName.Length > MaxNameLength)
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
         {
-            throw new BusinessRuleException($"Project name must be at most {MaxNameLength} characters.");
+            throw new ConflictException($"A project named '{projectName}' already exists.");
         }
-
-        return trimmedName;
     }
-
-    // Stands in for the network + database time of a real query. Task.Delay honours the token:
-    // if the caller cancels, it stops waiting and throws OperationCanceledException.
-    private Task SimulateDatabaseCallAsync(CancellationToken cancellationToken) =>
-        Task.Delay(_simulatedLatency, cancellationToken);
 }

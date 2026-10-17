@@ -1,0 +1,20 @@
+# Race experiment (cloud): 3 rounds, each = 10 concurrent POST /api/projects {"name":"Race N"}
+# (round 1's name already existed from an earlier aborted run, so all 10 were stopped by the C# check)
+round 1:      10 409
+round 2:       1 201       9 409
+round 3:       1 201       9 409
+# From the API log of this run:
+#   30 x "SELECT CASE WHEN EXISTS (... WHERE [p].[Name] = @name)"   = the C# EnsureNameIsFreeAsync check, once per request
+#   12 x "INSERT INTO [Projects]"                                    = requests that PASSED the check (rounds 2 + 3)
+#    2 x INSERT succeeded (201)
+#   10 x INSERT failed: SqlException "Cannot insert duplicate key row in object 'dbo.Projects' with unique index
+#        'IX_Projects_Name'. The duplicate key value is (Race 1)." Error Number:2601 -> caught -> ConflictException -> 409
+# Ids afterwards: Race 1 = 6, Race 2 = 9, Race 3 = 19 -> the failed INSERTs used up identity values (Topic 8 gaps).
+      An exception occurred in the database while saving changes for context type 'ProjectHub.Api.Data.ProjectHubDbContext'.
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert duplicate key row in object 'dbo.Projects' with unique index 'IX_Projects_Name'. The duplicate key value is (Race 2).
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+--

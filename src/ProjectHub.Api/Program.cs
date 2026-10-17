@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Options;
-using ProjectHub.Api.Configuration;
+using Microsoft.EntityFrameworkCore;
 using ProjectHub.Api.Data;
 using ProjectHub.Api.Labs.Lifetimes;
 using ProjectHub.Api.Middleware;
@@ -17,21 +16,27 @@ builder.Services.AddControllers()
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Settings: the "ProjectStore" section of appsettings*.json -> ProjectStoreOptions.
-// ValidateOnStart: a bad value (e.g. -1) stops the app at startup instead of failing on some later request.
-builder.Services.AddOptions<ProjectStoreOptions>()
-    .BindConfiguration(ProjectStoreOptions.SectionName)
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
+// Topic 10: the database. AddDbContext registers ProjectHubDbContext as SCOPED (one per request).
+// The connection string comes from configuration: "ConnectionStrings:ProjectHub" (appsettings.Development.json,
+// or an environment variable ConnectionStrings__ProjectHub in production). Missing = fail at startup (Topic 7).
+var connectionString = builder.Configuration.GetConnectionString("ProjectHub")
+    ?? throw new InvalidOperationException("Connection string 'ProjectHub' is missing (ConnectionStrings:ProjectHub).");
 
-// ONE shared in-memory store for the whole app (Singleton): data created by one request is visible to the next.
-// A factory, because ProjectService needs values the container must look up first (options, logger).
-builder.Services.AddSingleton<IProjectService>(serviceProvider =>
+builder.Services.AddDbContext<ProjectHubDbContext>(options =>
 {
-    var options = serviceProvider.GetRequiredService<IOptions<ProjectStoreOptions>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<ProjectService>>();
-    return new ProjectService(SampleData.CreateProjects(), TimeSpan.FromMilliseconds(options.SimulatedLatencyMs), logger);
+    options.UseSqlServer(connectionString);
+
+    // Development only: show parameter VALUES in the logged SQL. Never in production (it would log user data).
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+    }
 });
+
+// Scoped, because it uses the scoped DbContext. As a singleton it would capture ONE DbContext forever:
+// a captive dependency (Topic 7), which ASP.NET refuses at startup in Development.
+// The controller doesn't change at all: it only knows IProjectService (Topic 3's interface pays off).
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 // Topic 7 lab: the three lifetimes side by side (GET /api/labs/lifetimes).
 builder.Services.AddSingleton<SingletonOperation>();

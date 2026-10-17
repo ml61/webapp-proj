@@ -26,5 +26,6 @@ public static class ProjectMappings
         task.ProjectId,
         task.Title,
         task.Status,
-        task.CreatedAt);
+        task.CreatedAt,
+        task.DueDate);
 }

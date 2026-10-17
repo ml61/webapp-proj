@@ -21,7 +21,7 @@ Status: `[ ]` not started · `[~]` in progress · `[x]` checkpoint passed
 | 7 | DI, middleware, config, `ILogger` | ProjectService into DI; request timing middleware | Explain Scoped vs Transient vs Singleton | [x] |
 | 8 | SQL basics: tables, PK/FK, SELECT/WHERE/ORDER BY, INSERT/UPDATE/DELETE | Create ProjectHubDb by hand; write 10 queries (`sql/`) | Query and change data without EF Core | [x] |
 | 9 | JOINs, GROUP BY/HAVING, subqueries/EXISTS, transactions | "Tasks per project" + "overdue tasks" reports; BEGIN TRAN + ROLLBACK | Explain why a JOIN is needed and what a transaction protects | [x] |
-| 10 | EF Core basics: DbContext, DbSet, provider, migrations | Replace in-memory storage with SQL Server + EF Core | Schema comes from a migration; CRUD persists | [ ] |
+| 10 | EF Core basics: DbContext, DbSet, provider, migrations | Replace in-memory storage with SQL Server + EF Core | Schema comes from a migration; CRUD persists | [~] |
 
 ## Week 3 — Errors, tests, architecture (+ start React frontend)
 | # | Topic | Build / try | Checkpoint | Status |

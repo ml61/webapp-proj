@@ -90,7 +90,7 @@ public class ProjectsController(IProjectService projects) : ControllerBase
     {
         try
         {
-            var task = await projects.AddTaskAsync(id, request.Title, cancellationToken);
+            var task = await projects.AddTaskAsync(id, request.Title, request.DueDate, cancellationToken);
             // There is no "GET one task" endpoint yet, so Location points to the project that now contains it.
             return CreatedAtAction(nameof(GetById), new { id }, task.ToResponse());
         }

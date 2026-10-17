@@ -11,7 +11,7 @@ public static class DebugLabA
 {
     public static async Task RunAsync()
     {
-        var service = new ProjectService(CreateLabData());
+        var service = new InMemoryProjectService(CreateLabData());
         var report = new DashboardReport(service);
 
         Console.WriteLine("=== Bug report 1: 'The progress widget shows 0% for projects that are half done' ===");

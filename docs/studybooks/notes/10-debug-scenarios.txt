@@ -1,0 +1,33 @@
+# Captive dependency: AddSingleton<IProjectService, ProjectService>() (ProjectService needs the SCOPED DbContext)
+# dotnet run -> exit code 134, the app never starts:
+Unhandled exception. System.AggregateException: Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ProjectHub.Api.Services.IProjectService Lifetime: Singleton ImplementationType: ProjectHub.Api.Services.ProjectService': Cannot consume scoped service 'ProjectHub.Api.Data.ProjectHubDbContext' from singleton 'ProjectHub.Api.Services.IProjectService'.)
+ ---> System.InvalidOperationException: Error while validating the service descriptor 'ServiceType: ProjectHub.Api.Services.IProjectService Lifetime: Singleton ImplementationType: ProjectHub.Api.Services.ProjectService': Cannot consume scoped service 'ProjectHub.Api.Data.ProjectHubDbContext' from singleton 'ProjectHub.Api.Services.IProjectService'.
+ ---> System.InvalidOperationException: Cannot consume scoped service 'ProjectHub.Api.Data.ProjectHubDbContext' from singleton 'ProjectHub.Api.Services.IProjectService'.
+
+# Forgot the migration: ConnectionStrings__ProjectHub env var -> an EMPTY database (ProjectHubEmpty). The app STARTS fine;
+# the first request fails (the database is only contacted on the first query):
+GET /api/projects
+HTTP/1.1 500 Internal Server Error
+Content-Type: text/plain; charset=utf-8
+      Microsoft.Data.SqlClient.SqlException (0x80131904): Invalid object name 'Projects'.
+      Error Number:208,State:1,Class:16
+
+# Wrong database name (doesn't exist: ProjectHubMissing):
+GET /api/projects
+HTTP/1.1 500 Internal Server Error
+Content-Type: text/plain; charset=utf-8
+       ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot open database "ProjectHubMissing" requested by the login. The login failed.
+      Error Number:4060,State:1,Class:11
+
+# Untranslatable LINQ: EnsureNameIsFreeAsync with string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)
+POST /api/projects {"name":"Translate me"}
+HTTP/1.1 500 Internal Server Error
+      System.InvalidOperationException: The LINQ expression 'DbSet<Project>()
+          .Any(p => (int?)p.Id != @exceptProjectId && string.Equals(
+              a: p.Name, 
+              b: @name, 
+              comparisonType: OrdinalIgnoreCase))' could not be translated. Additional information: Translation of the 'string.Equals' overload with a 'StringComparison' parameter is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+         at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+         at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutorExpression[TResult](Expression query)
+         at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+         at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)

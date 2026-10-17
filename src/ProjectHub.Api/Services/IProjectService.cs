@@ -2,8 +2,10 @@ using ProjectHub.Api.Entities;
 
 namespace ProjectHub.Api.Services;
 
-// Async because the real implementation (EF Core + SQL Server, Topic 10) does I/O.
+// Async because the real implementation (ProjectService: EF Core + SQL Server, Topic 10) does I/O.
 // Every method accepts a CancellationToken so a caller can stop work that is no longer needed.
+// Two implementations: ProjectService (the database, used by the API) and InMemoryProjectService (a List, used by
+// the playground demos and labs). Callers only know this interface, so swapping them is one line in Program.cs.
 public interface IProjectService
 {
     Task<IReadOnlyList<Project>> GetAllAsync(CancellationToken cancellationToken = default);
@@ -20,6 +22,6 @@ public interface IProjectService
     // Throws NotFoundException when the project does not exist.
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 
-    // Throws NotFoundException when the project does not exist.
-    Task<TaskItem> AddTaskAsync(int projectId, string title, CancellationToken cancellationToken = default);
+    // Throws NotFoundException when the project does not exist, BusinessRuleException for an empty or too long title.
+    Task<TaskItem> AddTaskAsync(int projectId, string title, DateTime? dueDate = null, CancellationToken cancellationToken = default);
 }
