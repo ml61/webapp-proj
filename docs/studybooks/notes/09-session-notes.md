@@ -50,3 +50,11 @@ User went straight to the CHECK (section 12); piece-1 quiz and DEBUG tasks not a
 10. "commiting them" -> too vague. SaveChanges wraps ALL pending changes (inserts/updates/deletes) in ONE transaction
    automatically: all saved or none + an exception. Each SaveChanges call = its own transaction; several calls as
    one unit -> Database.BeginTransactionAsync() + CommitAsync().
+- Re-check (round 2): a) "JOIN so we receive data matched from 2 tables in one query; without it WE would query one
+  table and then query per row to match with the other table (tasks-project)" -> right (= N+1). b) "the SELECT waits
+  for the transaction to finish (committed or rolled back)" -> right; + it waits on the LOCK; after ROLLBACK it sees
+  the old row, after COMMIT "not found"; may time out (1222). c) "nothing saved, exception" -> right.
+- DEBUG task 5 not answered by the user; model answer given (JOIN + WHERE overdue + GROUP BY + HAVING COUNT(*) >= 1;
+  Mobile app 2, Website redesign 1). Follow-up point: HAVING is redundant there (INNER JOIN + WHERE -> every group
+  has >= 1 row); it matters with a LEFT JOIN or a higher threshold.
+- Topic 9 checkpoint passed.

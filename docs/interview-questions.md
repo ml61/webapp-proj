@@ -130,3 +130,16 @@ At the end of the program Claude runs a mock interview from this list.
 - [ ] What is SQL injection, and what prevents it?
 - [ ] What is `GO`?
 - [ ] A query returns no rows but the table has data: what do you check first?
+
+## Topic 9: JOINs, GROUP BY, subqueries, transactions
+- [ ] Why is a JOIN needed? What is the N+1 problem?
+- [ ] INNER JOIN vs LEFT JOIN (with a ProjectHub example)
+- [ ] Why does a WHERE on the right table break a LEFT JOIN? Where does the condition go?
+- [ ] `COUNT(*)` vs `COUNT(column)`
+- [ ] `WHERE` vs `HAVING`; the logical order of a SELECT
+- [ ] What does `EXISTS` do? Why prefer `NOT EXISTS` to `NOT IN`?
+- [ ] What does a transaction protect? Explain ACID
+- [ ] Does an error inside a transaction roll it back in SQL Server? The correct pattern
+- [ ] Why keep transactions short? How do you find who is blocking whom?
+- [ ] What does EF Core's `SaveChanges` do with transactions?
+- [ ] How do you add a column to a table that already has data?
